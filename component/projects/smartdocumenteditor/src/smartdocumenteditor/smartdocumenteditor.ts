@@ -8,10 +8,10 @@ import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
     templateUrl: './smartdocumenteditor.html'
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
-
     public Editor;
     public shouldshow = 0;
     private Inspector;
+    private readonly lockId = 'svy-ckeditor';
 
     @ViewChild('editor') editorComponent: CKEditorComponent;
     @ViewChild('element', { static: true }) elementRef: ElementRef;
@@ -171,10 +171,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'readOnly':
-                        if (this.editorComponent && this.editorComponent.editorInstance)
-                        {
-                            this.editorComponent.editorInstance.isReadOnly = change.currentValue;
-                        }
+                        this.toggleReadOnlyMode(change.currentValue);
                         break;
                     case "responsiveHeight":
                         if (!this.servoyApi.isInAbsoluteLayout()) {
@@ -233,6 +230,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.showToolbar) {
             toolbar.appendChild(this.editorComponent.editorInstance.ui.view.toolbar.element);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
+        }
+    }
+
+    public toggleReadOnlyMode(value, lockId = null) {
+        if (this.editorComponent && this.editorComponent.editorInstance) {
+            if (value) {
+                this.editorComponent.editorInstance.enableReadOnlyMode(lockId || this.lockId);
+            } else {
+                this.editorComponent.editorInstance.disableReadOnlyMode(lockId || this.lockId);
+            }
         }
     }
 
@@ -598,14 +605,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         //Force save current HTML Editor;
         this.forceSaveData( this.editorComponent.editorInstance.getData());
         this.prePreviewData = this.editorComponent.editorInstance.getData();
-        this.editorComponent.editorInstance.isReadOnly = !!(readOnly != undefined ? readOnly : true);
+        this.toggleReadOnlyMode(!!(readOnly != undefined ? readOnly : true));
         this.editorComponent.editorInstance.setData(html);
     }
 
     undoPreviewHTML(readOnly?: boolean) {
         this.editorComponent.editorInstance.setData(this.prePreviewData);
         this.prePreviewData = null;
-        this.editorComponent.editorInstance.isReadOnly = !!(readOnly != undefined ? readOnly : false);
+        this.toggleReadOnlyMode(!!(readOnly != undefined ? readOnly : false));
     }
 
     isInPreviewMode(): boolean {
