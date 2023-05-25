@@ -13,10 +13,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public shouldshow = 0;
     private Inspector;
     private getFocusWhenReady = false;
-    
+
     @ViewChild('editor') editorComponent: CKEditorComponent;
     @ViewChild('element', { static: true }) elementRef: ElementRef;
-     
+
     VIEW_TYPE = {
         WEB: 'WEB',
         DOCUMENT: 'DOCUMENT'
@@ -53,7 +53,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         super(renderer, cdRef);
         let moduleName = 'ckeditor'
         import(`../assets/lib/${moduleName}`).then((module) => {
-            this.Editor = module.default; 
+            this.Editor = module.default;
             this.shouldshow++;
             this.cdRef.detectChanges();
         });
@@ -76,7 +76,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
         //make sure custom toolbar items are created
         //We should always load them, else the valuelists don't get an update to show the correct values
-        // this.config.svyToolbarItems = this.getSvyToolbarItems();
+        this.config.svyToolbarItems = this.getSvyToolbarItems();
 
         if (this.mentionFeeds && this.mentionFeeds.length) {
             //add placeholder mention feed
@@ -112,8 +112,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
 
         import(`../assets/lib/translations/${this.config.language.toLowerCase()}.js`);
-        
-         
+
+
         // note The pagination feature is by default enabled only in browsers that are using the Blink engine (Chrome, Chromium, newer Edge, newer Opera). 
         // This behavior can be modified by setting this configuration option to true.
         // config.pagination.enableOnUnsupportedBrowsers
@@ -169,9 +169,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'readOnly':
-                        if (this.editorComponent && this.editorComponent.editorInstance)
-                        {
-                            if(change.currentValue) {
+                        if (this.editorComponent && this.editorComponent.editorInstance) {
+                            if (change.currentValue) {
                                 this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
                             } else {
                                 this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
@@ -189,25 +188,24 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'dataProviderID':
-                        if (!change.isFirstChange())
-                        {
-                            if(this.editorComponent && !this.editorComponent.editorInstance.editing.view.document.isFocused) {
-                                this.editorComponent.editorInstance.setData( this.dataProviderID || '');
+                        if (!change.isFirstChange()) {
+                            if (this.editorComponent && !this.editorComponent.editorInstance.editing.view.document.isFocused) {
+                                this.editorComponent.editorInstance.setData(this.dataProviderID || '');
                             }
-                        }    
+                        }
                         break;
                     case 'editorStyleSheet':
                         this.document.head.removeAttribute("[customSmartDocumentEditor]")
-                        
-                        if(this.editorStyleSheet) {
+
+                        if (this.editorStyleSheet) {
                             let url = this.editorStyleSheet.split('?')[0];
                             let additions = this.editorStyleSheet.split('?')[1].split('&').filter((item) => {
                                 return item.startsWith('clientnr');
                             });
-                            if(additions.length) {
+                            if (additions.length) {
                                 url += '?' + additions.join('&');
                             }
-                            
+
                             let head = this.document.getElementsByTagName('head')[0];
                             let cssHref = this.document.createElement('link');
                             cssHref.setAttribute("rel", "stylesheet");
@@ -216,7 +214,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                             cssHref.setAttribute("customSmartDocumentEditor", "");
                             head.appendChild(cssHref);
                         }
-                    break;
+                        break;
                     case 'showToolbar':
                         if (this.editorComponent && this.editorComponent.editorInstance) {
                             this.toggleToolbar();
@@ -224,6 +222,22 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         break;
                     case 'config':
                         console.debug("Configuration change detected, new config: " + JSON.stringify(this.config));
+                        break;
+                    case 'mentionFeeds':
+                        if (this.config && this.mentionFeeds && this.mentionFeeds.length) {
+                            //add placeholder mention feed
+                            this.config.mention = {
+                                feeds: this.getFeeds()
+                            }
+
+                            if (!this.config.hasOwnProperty('extraPlugins') || this.config.extraPlugins.indexOf(SvyMentionConverter) === -1) {
+                                if (this.config.hasOwnProperty('extraPlugins')) {
+                                    this.config.extraPlugins.push(SvyMentionConverter);
+                                } else {
+                                    this.config.extraPlugins = [SvyMentionConverter];
+                                }
+                            }
+                        }
                         break;
                 }
             }
@@ -243,7 +257,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    public onEditorReady(editor : any): void {
+    public onEditorReady(editor: any): void {
         const view = editor.editing.view;
         const viewDocument = view.document;
 
@@ -261,7 +275,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
 
         editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-            return new ServoyUploadAdapter(loader,this.servoyService.generateUploadUrl(this.servoyApi.getFormName(), this.name, 'onFileUploadedMethodID'), this.onFileUploadedMethodID);
+            return new ServoyUploadAdapter(loader, this.servoyService.generateUploadUrl(this.servoyApi.getFormName(), this.name, 'onFileUploadedMethodID'), this.onFileUploadedMethodID);
         };
 
         // Disable the plugin so that no pagination is use are visible.
@@ -280,7 +294,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 }
             });
         }
-        if (this.getFocusWhenReady){
+        if (this.getFocusWhenReady) {
             this.getFocusWhenReady = false;
             editor.focus();
         }
@@ -288,11 +302,11 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             editor.ui.focusTracker.on('change:isFocused', (evt, data, isFocused) => {
                 if (isFocused) {
                     if (this.onFocusGainedMethodID) {
-                        this.onFocusGainedMethodID(this.servoyService.createJSEvent( {target : this.getNativeElement()} as EventLike, 'focusGained'));
+                        this.onFocusGainedMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusGained'));
                     }
                 } else {
                     if (this.onFocusLostMethodID) {
-                        this.onFocusLostMethodID(this.servoyService.createJSEvent( {target : this.getNativeElement()} as EventLike, 'focusLost'));
+                        this.onFocusLostMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusLost'));
                     }
                     this.forceSaveData(this.editorComponent.editorInstance.getData());
                 }
@@ -302,7 +316,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.onActionMethodID) {
             editor.listenTo(editor.editing.view.document, 'click', (evt) => {
                 if (this.readOnly) {
-                    this.onActionMethodID(this.servoyService.createJSEvent( {target : this.getNativeElement()} as EventLike, 'onAction'));
+                    this.onActionMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'onAction'));
                 }
             })
         }
@@ -324,7 +338,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             for (let i = 0; i < this.mentionFeeds.length; i++) {
                 const feed = this.mentionFeeds[i];
                 //Skip feed parsing.. if there is nothing to parse;
-                if(!feed.valueList && !feed.feedItems) {
+                if (!feed.valueList && !feed.feedItems) {
                     continue;
                 }
 
@@ -335,7 +349,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 result.push(
                     {
                         marker: feed.marker,
-                        minimumCharacters: feed.minimumCharacters||0,
+                        minimumCharacters: feed.minimumCharacters || 0,
                         feed: function(queryText) {
                             if (feed.valueList) {
                                 return new Promise(resolve => {
@@ -353,7 +367,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                                 name: item.displayValue.toString(),
                                                 id: feed.marker.toString() + item.displayValue.toString(),
                                                 realValue: item.realValue,
-                                                editable: feed.itemEditable||false
+                                                editable: feed.itemEditable || false
                                             }
                                         });
 
@@ -372,8 +386,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                         name: entry.displayValue.toString(),
                                         id: feed.marker.toString() + entry.displayValue.toString(),
                                         realValue: entry.realValue,
-                                        format: entry.format||'',
-                                        editable: feed.itemEditable||false
+                                        format: entry.format || '',
+                                        editable: feed.itemEditable || false
                                     }
                                 })
                             } else {
@@ -405,7 +419,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     ignoreReadOnly: item.ignoreReadOnly || false,
                     valueList: item.valueList,
                     onClick: item.onClick ? (buttonView, dropDownValue) => {
-                        let jsevent = this.servoyService.createJSEvent( {target : this.getNativeElement()} as EventLike, 'action');
+                        let jsevent = this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'action');
                         this.servoyService.executeInlineScript(item.onClick.formname, item.onClick.script, [jsevent, item.name, dropDownValue || null])
                     } : null
                 }
@@ -413,7 +427,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
         return null;
     }
-    
+
     getToolbarItems(): Array<string> {
         if (this.toolbarItems && this.toolbarItems.length > 0) {
             return this.toolbarItems.map((item) => {
@@ -444,7 +458,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     getEditorCSSStylesheetName(): string {
-        if(this.editorStyleSheet) {
+        if (this.editorStyleSheet) {
             let name = this.editorStyleSheet.split('?')[0];
             name = name.split('/').pop();
             return name;
@@ -488,8 +502,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             for (let i = 0; i < this.mentionFeeds.length; i++) {
                 if (this.mentionFeeds[i].marker === marker.toString()) {
                     const feed = this.mentionFeeds[i];
-                    const list = (feed.valueList||feed.feedItems).filter((item) => {
-                        return (item.realValue||item.displayValue).toString() == tag.toString();
+                    const list = (feed.valueList || feed.feedItems).filter((item) => {
+                        return (item.realValue || item.displayValue).toString() == tag.toString();
                     })
                     if (list.length > 0) {
                         this.editorComponent.editorInstance.execute('mention', {
@@ -497,8 +511,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                 name: list[0].displayValue.toString(),
                                 id: feed.marker.toString() + list[0].displayValue.toString(),
                                 realValue: list[0].realValue,
-                                format: list[0]['format']||'',
-                                editable: feed.itemEditable||false
+                                format: list[0]['format'] || '',
+                                editable: feed.itemEditable || false
                             }
                         });
                         return true;
@@ -552,11 +566,11 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return this.Editor.getPrintCSS();
     }
 
-    previewHTML(html: string, readOnly?:boolean) {
+    previewHTML(html: string, readOnly?: boolean) {
         //Force save current HTML Editor;
-        this.forceSaveData( this.editorComponent.editorInstance.getData());
+        this.forceSaveData(this.editorComponent.editorInstance.getData());
         this.prePreviewData = this.editorComponent.editorInstance.getData();
-        if(!!(readOnly != undefined ? readOnly : true)) {
+        if (!!(readOnly != undefined ? readOnly : true)) {
             this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
         } else {
             this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
@@ -568,7 +582,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     undoPreviewHTML(readOnly?: boolean) {
         this.editorComponent.editorInstance.setData(this.prePreviewData);
         this.prePreviewData = null;
-        if(!!(readOnly != undefined ? readOnly : false)) {
+        if (!!(readOnly != undefined ? readOnly : false)) {
             this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
         } else {
             this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
@@ -583,8 +597,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.editorComponent) {
             this.editorComponent.editorInstance.focus();
         }
-        else{
-             this.getFocusWhenReady = true;
+        else {
+            this.getFocusWhenReady = true;
         }
     }
 }
@@ -744,7 +758,7 @@ class ServoyUploadAdapter {
 }
 
 class SvyMentionConverter {
-        constructor(editor: any) {
+    constructor(editor: any) {
         editor.conversion.for('upcast').elementToAttribute({
             view: {
                 name: 'span',
