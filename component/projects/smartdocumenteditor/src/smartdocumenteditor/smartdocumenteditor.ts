@@ -169,13 +169,15 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'readOnly':
-                        if (this.editorComponent && this.editorComponent.editorInstance) {
-                            if (change.currentValue) {
-                                this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
-                            } else {
-                                this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
-                            }
-                        }
+						setTimeout(()=> {
+                        	if (this.editorComponent && this.editorComponent.editorInstance) {
+                            	if (change.currentValue) {
+                                	this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
+                            	} else {
+                                	this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
+                            	}
+                        	}
+                        }, 200);
                         break;
                     case "responsiveHeight":
                         if (!this.servoyApi.isInAbsoluteLayout()) {
