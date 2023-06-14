@@ -786,8 +786,8 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
 
             /**
              * Force the autosave trigger of the editor to get all latest changes
-             * @example elements.%%elementName%%.saveData();
-             * @returns {Boolean}
+             * @example dataprovider = elements.%%elementName%%.saveData();
+             * @returns {Object} the data currently in the editor.
              */
             $scope.api.saveData = function() {
                 if($scope.editor) {

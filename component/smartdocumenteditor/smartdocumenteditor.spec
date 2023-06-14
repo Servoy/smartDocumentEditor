@@ -4,6 +4,7 @@
     "version": 1,
     "icon": "smartdocumenteditor/smartdocumenteditor/smartDocumentEditor.png",
     "definition": "smartdocumenteditor/smartdocumenteditor/smartdocumenteditor.js",
+    "doc": "smartdocumenteditor/smartdocumenteditor/smartdocumenteditor_doc.js",
     "serverscript": "smartdocumenteditor/smartdocumenteditor/smartdocumenteditor_server.js",
     "libraries": [
         { "name": "ckeditor5-servoy-build.js", "version": "35.1.0", "url": "smartdocumenteditor/smartdocumenteditor/lib/ckeditor.js", "mimetype": "text/javascript" },
