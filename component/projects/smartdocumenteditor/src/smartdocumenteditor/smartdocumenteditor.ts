@@ -1,7 +1,6 @@
 import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
-import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -13,8 +12,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public shouldshow = 0;
     private Inspector;
     private getFocusWhenReady = false;
+    private editorInstance;
 
-    @ViewChild('editor') editorComponent: CKEditorComponent;
     @ViewChild('element', { static: true }) elementRef: ElementRef;
 
     VIEW_TYPE = {
@@ -169,15 +168,13 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'readOnly':
-						setTimeout(()=> {
-                        	if (this.editorComponent && this.editorComponent.editorInstance) {
-                            	if (change.currentValue) {
-                                	this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
-                            	} else {
-                                	this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
-                            	}
-                        	}
-                        }, 200);
+                        if (this.editorInstance) {
+                            if (change.currentValue) {
+                                this.editorInstance.enableReadOnlyMode('readonly');
+                            } else {
+                                this.editorInstance.disableReadOnlyMode('readonly');
+                            }
+                        }
                         break;
                     case "responsiveHeight":
                         if (!this.servoyApi.isInAbsoluteLayout()) {
@@ -191,8 +188,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         break;
                     case 'dataProviderID':
                         if (!change.isFirstChange()) {
-                            if (this.editorComponent && !this.editorComponent.editorInstance.editing.view.document.isFocused) {
-                                this.editorComponent.editorInstance.setData(this.dataProviderID || '');
+                            if (!this.editorInstance.editing.view.document.isFocused) {
+                                this.editorInstance.setData(this.dataProviderID || '');
                             }
                         }
                         break;
@@ -218,7 +215,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'showToolbar':
-                        if (this.editorComponent && this.editorComponent.editorInstance) {
+                        if (this.editorInstance) {
                             this.toggleToolbar();
                         }
                         break;
@@ -254,17 +251,18 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
 
         if (this.showToolbar) {
-            toolbar.appendChild(this.editorComponent.editorInstance.ui.view.toolbar.element);
+            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
     }
 
     public onEditorReady(editor: any): void {
-        const view = editor.editing.view;
+		this.editorInstance = editor;
+        const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
         if (this.showInspector) {
-            this.Inspector.attach(editor)
+            this.Inspector.attach(this.editorInstance)
         }
 
         // Set a custom container for the toolbar
@@ -272,23 +270,23 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             const toolbar = this.getNativeElement().querySelector('#toolbar-container');
             if (toolbar.firstChild)
                 toolbar.removeChild(toolbar.firstChild);
-            toolbar.appendChild(editor.ui.view.toolbar.element);
+            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
 
-        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+        this.editorInstance.plugins.get('FileRepository').createUploadAdapter = (loader) => {
             return new ServoyUploadAdapter(loader, this.servoyService.generateUploadUrl(this.servoyApi.getFormName(), this.name, 'onFileUploadedMethodID'), this.onFileUploadedMethodID);
         };
 
         // Disable the plugin so that no pagination is use are visible.
         if (this.viewType != this.VIEW_TYPE.DOCUMENT) {
-            editor.plugins.get('Pagination').isEnabled = false;
+            this.editorInstance.plugins.get('Pagination').isEnabled = false;
         }
 
         if (this.overWriteTabForEditor) {
             viewDocument.on('keydown', (evt, data) => {
                 if ((data.keyCode == 9) && viewDocument.isFocused) {
-                    editor.execute('input', { text: "     " });
+                    this.editorInstance.execute('input', { text: "     " });
 
                     evt.stop(); // Prevent executing the default handler.
                     data.preventDefault();
@@ -298,10 +296,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
         if (this.getFocusWhenReady) {
             this.getFocusWhenReady = false;
-            editor.focus();
+            this.editorInstance.focus();
         }
         if (this.onFocusGainedMethodID || this.onFocusLostMethodID) {
-            editor.ui.focusTracker.on('change:isFocused', (evt, data, isFocused) => {
+            this.editorInstance.ui.focusTracker.on('change:isFocused', (evt, data, isFocused) => {
                 if (isFocused) {
                     if (this.onFocusGainedMethodID) {
                         this.onFocusGainedMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusGained'));
@@ -310,18 +308,24 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     if (this.onFocusLostMethodID) {
                         this.onFocusLostMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusLost'));
                     }
-                    this.forceSaveData(this.editorComponent.editorInstance.getData());
+                    this.forceSaveData(this.editorInstance.getData());
                 }
             });
         }
 
         if (this.onActionMethodID) {
-            editor.listenTo(editor.editing.view.document, 'click', (evt) => {
+            this.editorInstance.listenTo(this.editorInstance.editing.view.document, 'click', (evt) => {
                 if (this.readOnly) {
                     this.onActionMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'onAction'));
                 }
             })
         }
+        
+		if (this.readOnly) {
+			this.editorInstance.enableReadOnlyMode('readonly');
+		} else {
+			this.editorInstance.disableReadOnlyMode('readonly');
+		}
     }
 
     svyMentionRenderer(item) {
@@ -471,33 +475,33 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
 
     forceSaveData(data: string) {
-        if (!this.readOnly && this.editorComponent && !this.prePreviewData) {
+        if (!this.readOnly && this.editorInstance && !this.prePreviewData) {
             this.dataProviderID = data;
             this.dataProviderIDChange.emit(this.dataProviderID);
         }
     }
 
     saveData() {
-        if (this.editorComponent) {
-            this.forceSaveData(this.editorComponent.editorInstance.getData());
-            return this.editorComponent.editorInstance.getData();
+        if (this.editorInstance) {
+            this.forceSaveData(this.editorInstance.getData());
+            return this.editorInstance.getData();
         }
         return null;
     }
 
     addInputAtCursor(input: string) {
         if (input) {
-            if (this.readOnly || !this.editorComponent) {
+            if (this.readOnly || !this.editorInstance) {
                 return false;
             }
-            this.editorComponent.editorInstance.execute('input', { text: input })
+            this.editorInstance.execute('input', { text: input })
         }
         return true;
     }
 
     addTagAtCursor(marker: string, tag: string): boolean {
         if (tag) {
-            if (this.readOnly || !this.editorComponent) {
+            if (this.readOnly || !this.editorInstance) {
                 return false;
             }
 
@@ -508,7 +512,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         return (item.realValue || item.displayValue).toString() == tag.toString();
                     })
                     if (list.length > 0) {
-                        this.editorComponent.editorInstance.execute('mention', {
+                        this.editorInstance.execute('mention', {
                             marker: marker.toString(), mention: {
                                 name: list[0].displayValue.toString(),
                                 id: feed.marker.toString() + list[0].displayValue.toString(),
@@ -527,21 +531,21 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     executeCommand(command: string, commandParameters: object) {
-        if (this.editorComponent) {
-            this.editorComponent.editorInstance.execute(command, commandParameters);
+        if (this.editorInstance) {
+            this.editorInstance.execute(command, commandParameters);
         }
     }
 
 
     insertImage(source: string) {
-        if (this.editorComponent) {
-            this.editorComponent.editorInstance.execute('imageInsert', { source: source });
+        if (this.editorInstance) {
+            this.editorInstance.execute('imageInsert', { source: source });
         }
     }
 
     getHTMLData(withInlineCSS: boolean, filterStylesheetName: string): string {
-        if (this.editorComponent) {
-            let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorComponent.editorInstance.getData() + '</div></body></html>';
+        if (this.editorInstance) {
+            let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
             if (withInlineCSS) {
                 if (filterStylesheetName) {
                     data = this.Editor.getInlineStyle(data, this.Editor.getCSSData(filterStylesheetName));
@@ -570,34 +574,34 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     previewHTML(html: string, readOnly?: boolean) {
         //Force save current HTML Editor;
-        this.forceSaveData(this.editorComponent.editorInstance.getData());
-        this.prePreviewData = this.editorComponent.editorInstance.getData();
+        this.forceSaveData(this.editorInstance.getData());
+        this.prePreviewData = this.editorInstance.getData();
         if (!!(readOnly != undefined ? readOnly : true)) {
-            this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
+            this.editorInstance.enableReadOnlyMode('readonly');
         } else {
-            this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
+            this.editorInstance.disableReadOnlyMode('readonly');
         }
 
-        this.editorComponent.editorInstance.setData(html);
+        this.editorInstance.setData(html);
     }
 
     undoPreviewHTML(readOnly?: boolean) {
-        this.editorComponent.editorInstance.setData(this.prePreviewData);
+        this.editorInstance.setData(this.prePreviewData);
         this.prePreviewData = null;
         if (!!(readOnly != undefined ? readOnly : false)) {
-            this.editorComponent.editorInstance.enableReadOnlyMode('readonly');
+            this.editorInstance.enableReadOnlyMode('readonly');
         } else {
-            this.editorComponent.editorInstance.disableReadOnlyMode('readonly');
+            this.editorInstance.disableReadOnlyMode('readonly');
         }
     }
 
     isInPreviewMode(): boolean {
-        return !!this.editorComponent.editorInstance.isReadOnly;
+        return !!this.editorInstance.isReadOnly;
     }
 
     requestFocus() {
-        if (this.editorComponent) {
-            this.editorComponent.editorInstance.focus();
+        if (this.editorInstance) {
+            this.editorInstance.focus();
         }
         else {
             this.getFocusWhenReady = true;
