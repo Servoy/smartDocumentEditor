@@ -1,6 +1,7 @@
 import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
+import { CKEditor5 } from '@ckeditor/ckeditor5-angular';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -12,7 +13,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public shouldshow = 0;
     private Inspector;
     private getFocusWhenReady = false;
-    private editorInstance;
+    private editorInstance: CKEditor5.Editor;
 
     @ViewChild('element', { static: true }) elementRef: ElementRef;
 
@@ -188,7 +189,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         break;
                     case 'dataProviderID':
                         if (!change.isFirstChange()) {
-                            if (!this.editorInstance.editing.view.document.isFocused) {
+                            if (this.editorInstance && !this.editorInstance.editing.view.document.isFocused) {
                                 this.editorInstance.setData(this.dataProviderID || '');
                             }
                         }
@@ -256,7 +257,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    public onEditorReady(editor: any): void {
+    public onEditorReady(editor: CKEditor5.Editor): void {
 		this.editorInstance = editor;
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
