@@ -80,7 +80,7 @@
     "model": {
         "config":           { "type": "object", "pushToServer": "allow", "tags": {"scope": "private"}},
         "prePreviewData":   { "type": "string", "pushToServer": "allow", "tags": {"scope": "private"}},
-        "dataProviderID":   { "type": "dataprovider", "pushToServer": "allow", "tags": {"scope": "design"}, "ondatachange": {"onchange": "onDataChangeMethodID"}},
+        "dataProviderID":   { "type": "dataprovider", "pushToServer": "allow", "tags": {"wizard": true, "scope": "design"}, "ondatachange": {"onchange": "onDataChangeMethodID"}},
         "toolbarItems": {
             "type": "toolbarItem[]", "droppable": true, "tags": { "scope": "design", "doc": "Configure toolbar items" },
             "initialValue": [
