@@ -1,5 +1,5 @@
 ## smartDocumentEditor
-The feature-rich document editing component which can plug into your Servoy application to provid rich editing functionality and _so_ much more!
+The feature-rich document editing component which can plug into your Servoy application to provide rich editing functionality and _so_ much more!
 
 
 ### Getting started
