@@ -427,7 +427,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     valueList: item.valueList,
                     onClick: item.onClick ? (buttonView, dropDownValue) => {
                         let jsevent = this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'action');
-                        this.servoyService.executeInlineScript(item.onClick.formname, item.onClick.script, [jsevent, item.name, dropDownValue || null])
+                        item.onClick(jsevent, item.name, dropDownValue || null)
                     } : null
                 }
             })
