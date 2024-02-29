@@ -111,7 +111,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             this.config.language = this.getCurrentLanguage();
         }
 
-        import(`../assets/lib/translations/${this.config.language.toLowerCase()}.js`);
+        this.importLocale();
 
 
         // note The pagination feature is by default enabled only in browsers that are using the Blink engine (Chrome, Chromium, newer Edge, newer Opera). 
@@ -620,6 +620,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         else {
             this.getFocusWhenReady = true;
         }
+    }
+    
+    private importLocale() {
+        var script = this.document.createElement("script");
+        const index = this.document.baseURI.indexOf('/',7);
+        const context = index > 0 ? this.document.baseURI.substring(index) : '/';
+        script.src = `${context}locales/smartdocumenteditor/${this.config.language.toLowerCase()}.js`;
+
+        // append and execute script
+        this.document.documentElement.firstChild.appendChild(script);
     }
 }
 export class ToolbarItem extends BaseCustomObject {

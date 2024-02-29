@@ -77,6 +77,13 @@
         { "name": "ckeditor5-servoy-language-zh-cn.js", "version": "35.1.0", "url": "smartdocumenteditor/smartdocumenteditor/lib/translations/zh-cn.js", "mimetype": "text/javascript" },
         { "name": "smartdocumenteditor.css", "version": "1.0.0", "url": "smartdocumenteditor/smartdocumenteditor/smartdocumenteditor.css", "mimetype": "text/css" }
     ],
+    "ng2Config": {
+       "assets": [{
+                    "glob": "*.js",
+                    "input": "node_modules/@servoy/smartdocumenteditor/assets/lib/translations",
+                    "output": "/locales/smartdocumenteditor"
+              }]
+    },
     "model": {
         "config":           { "type": "object", "pushToServer": "allow", "tags": {"scope": "private"}},
         "prePreviewData":   { "type": "string", "pushToServer": "allow", "tags": {"scope": "private"}},
