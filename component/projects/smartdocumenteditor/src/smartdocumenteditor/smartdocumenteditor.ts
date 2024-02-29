@@ -51,14 +51,12 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService) {
         super(renderer, cdRef);
-        let moduleName = 'ckeditor'
-        import(`../assets/lib/${moduleName}`).then((module) => {
+        import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default;
             this.shouldshow++;
             this.cdRef.detectChanges();
         });
-        moduleName = 'inspector'
-        import(`../assets/lib/${moduleName}`).then((module) => {
+        import('../assets/lib/inspector').then((module) => {
             this.Inspector = module.default;
             this.shouldshow++;
             this.cdRef.detectChanges();
