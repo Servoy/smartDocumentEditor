@@ -12,6 +12,8 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
         },
         link: function($scope, $element, $attrs) {
             $scope.editor = null;
+            $scope.previewHTMLHTML = null;
+            $scope.previewHTMLreadOnly = null;
             $scope.createEditorQueue = [];
 
             const VIEW_TYPE = {
@@ -589,6 +591,16 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
                 $scope.model.config = emptyConfig;
             }
 
+            function executePreviewHTML(html, readOnly) {
+                $scope.model.prePreviewData = $scope.editor.getData();
+
+                if(!!(readOnly != undefined ? readOnly : true)) {
+                    $scope.editor.enableReadOnlyMode('readonly');
+                } else {
+                    $scope.editor.disableReadOnlyMode('readonly');
+                }
+                $scope.editor.setData(html)
+            }
             /**
              * Creates an editor instance
              * @param {*} orgConfig 
@@ -765,6 +777,10 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
                             if ($scope.handlers.onReady) {
                                 $scope.handlers.onReady();
                             }
+                            if ($scope.previewHTMLHTML){
+                                executePreviewHTML($scope.previewHTMLHTML, $scope.previewHTMLreadOnly);
+                                $scope.previewHTMLHTML = null;
+                            }
 
                         }).catch(function (error) {
                             console.error(error);
@@ -908,16 +924,15 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
              * @public 
              */
             $scope.api.previewHTML = function(html, readOnly) {
+                if (!$scope.editor){
+                    $scope.previewHTMLHTML = html;
+                    $scope.previewHTMLreadOnly = readOnly;
+                    return;
+                }
                 //Force save current HTML Editor;
                 forceSaveData( $scope.editor.getData() );
-                $scope.model.prePreviewData = $scope.editor.getData();
-
-                if(!!(readOnly != undefined ? readOnly : true)) {
-                    $scope.editor.enableReadOnlyMode('readonly');
-                } else {
-                    $scope.editor.disableReadOnlyMode('readonly');
-                }
-                $scope.editor.setData(html)
+               
+                executePreviewHTML(html, readOnly);
             }
 
             /**

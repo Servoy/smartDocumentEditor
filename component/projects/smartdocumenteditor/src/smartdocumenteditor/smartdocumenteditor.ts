@@ -14,6 +14,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     private Inspector;
     private getFocusWhenReady = false;
     private editorInstance: CKEditor5.Editor;
+    private previewHTMLHTML: string;
+    private previewHTMLreadOnly: boolean;
 
     @ViewChild('element', { static: true }) elementRef: ElementRef;
 
@@ -256,7 +258,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     public onEditorReady(editor: CKEditor5.Editor): void {
-		this.editorInstance = editor;
+        this.editorInstance = editor;
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
@@ -319,12 +321,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 }
             })
         }
-        
-		if (this.readOnly) {
-			this.editorInstance.enableReadOnlyMode('readonly');
-		} else {
-			this.editorInstance.disableReadOnlyMode('readonly');
-		}
+
+        if (this.readOnly) {
+            this.editorInstance.enableReadOnlyMode('readonly');
+        } else {
+            this.editorInstance.disableReadOnlyMode('readonly');
+        }
+        if (this.previewHTMLHTML) {
+            this.executePreviewHTML(this.previewHTMLHTML, this.previewHTMLreadOnly);
+            this.previewHTMLHTML = null;
+        }
     }
 
     svyMentionRenderer(item) {
@@ -571,9 +577,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return this.Editor.getPrintCSS();
     }
 
-    previewHTML(html: string, readOnly?: boolean) {
-        //Force save current HTML Editor;
-        this.forceSaveData(this.editorInstance.getData());
+    private executePreviewHTML(html: string, readOnly?: boolean) {
         this.prePreviewData = this.editorInstance.getData();
         if (!!(readOnly != undefined ? readOnly : true)) {
             this.editorInstance.enableReadOnlyMode('readonly');
@@ -584,7 +588,18 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         this.editorInstance.setData(html);
     }
 
-    undoPreviewHTML(readOnly?: boolean) {
+    public previewHTML(html: string, readOnly?: boolean) {
+        if (!this.editorInstance) {
+            this.previewHTMLHTML = html;
+            this.previewHTMLreadOnly = readOnly;
+            return;
+        }
+        //Force save current HTML Editor;
+        this.forceSaveData(this.editorInstance.getData());
+        this.executePreviewHTML(html, readOnly);
+    }
+
+    public undoPreviewHTML(readOnly?: boolean) {
         this.editorInstance.setData(this.prePreviewData);
         this.prePreviewData = null;
         if (!!(readOnly != undefined ? readOnly : false)) {
