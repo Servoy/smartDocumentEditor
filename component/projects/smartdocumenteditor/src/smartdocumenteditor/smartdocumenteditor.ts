@@ -624,7 +624,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     
     private importLocale() {
         var script = this.document.createElement("script");
-        const index = this.document.baseURI.indexOf('/',7);
+        const index = this.document.baseURI.indexOf('/',8);
         const context = index > 0 ? this.document.baseURI.substring(index) : '/';
         script.src = `${context}locales/smartdocumenteditor/${this.config.language.toLowerCase()}.js`;
 
