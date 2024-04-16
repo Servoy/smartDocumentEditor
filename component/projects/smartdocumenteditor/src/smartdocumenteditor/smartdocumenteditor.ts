@@ -135,12 +135,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 }
             }
         }
-
-        if (!this.config.licenseKey) {
-            // this key is not part of the open source license, can only be used in combination of the Servoy Smart Document component
-            this.config.licenseKey = 't7bGBeslyKqcZezJC2Pe6/6rHqWZbzMrAfE4KpTLUYdFlSNUCqVHK98UmOtEPw==';
-        }
-
     }
 
 
@@ -221,7 +215,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'config':
-                        console.debug("Configuration change detected, new config: " + JSON.stringify(this.config));
+                        //console.debug("Configuration change detected, new config: " + JSON.stringify(this.config));
                         break;
                     case 'mentionFeeds':
                         if (this.config && this.mentionFeeds && this.mentionFeeds.length) {

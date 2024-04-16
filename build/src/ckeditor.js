@@ -245,5 +245,5 @@ DecoupledEditor.defaultConfig = {
             left: '12mm'
         }
     },
-    licenseKey: 'zuSeFZIFwNTHSUFsG+EabUH+hae6/aR+Jxm1SIja0GzpksxT0Tm20SUA'
+    licenseKey: 't7bGBeslyKqcZezJC2Pe6/6rHqWZbzMrAfE4KpTLUYdFlSNUCqVHK98UmOtEPw=='
 };
