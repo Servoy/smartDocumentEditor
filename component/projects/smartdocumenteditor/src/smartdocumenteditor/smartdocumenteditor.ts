@@ -1,7 +1,8 @@
 import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
-import { CKEditor5 } from '@ckeditor/ckeditor5-angular';
+import { Editor } from '@ckeditor/ckeditor5-core';
+import DecoupledEditor from '../ckeditor/ckeditor';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -9,11 +10,11 @@ import { CKEditor5 } from '@ckeditor/ckeditor5-angular';
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
-    public Editor;
+    public Editor: typeof DecoupledEditor;
     public shouldshow = 0;
-    private Inspector;
+    // private Inspector;
     private getFocusWhenReady = false;
-    private editorInstance: CKEditor5.Editor;
+    private editorInstance: DecoupledEditor;
     private previewHTMLHTML: string;
     private previewHTMLreadOnly: boolean;
 
@@ -53,14 +54,9 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService) {
         super(renderer, cdRef);
-        import('../assets/lib/ckeditor').then((module) => {
+        import('../ckeditor/ckeditor').then((module) => {
             this.Editor = module.default;
-            this.shouldshow++;
-            this.cdRef.detectChanges();
-        });
-        import('../assets/lib/inspector').then((module) => {
-            this.Inspector = module.default;
-            this.shouldshow++;
+            this.shouldshow++; 
             this.cdRef.detectChanges();
         });
     }
@@ -136,10 +132,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             }
         }
 
-        if (!this.config.licenseKey) {
-            // this key is not part of the open source license, can only be used in combination of the Servoy Smart Document component
-            this.config.licenseKey = 't7bGBeslyKqcZezJC2Pe6/6rHqWZbzMrAfE4KpTLUYdFlSNUCqVHK98UmOtEPw==';
-        }
+        // if (!this.config.licenseKey) {
+        //     // this key is not part of the open source license, can only be used in combination of the Servoy Smart Document component
+        //     this.config.licenseKey = 't7bGBeslyKqcZezJC2Pe6/6rHqWZbzMrAfE4KpTLUYdFlSNUCqVHK98UmOtEPw==';
+        // }
 
     }
 
@@ -252,26 +248,26 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
 
         if (this.showToolbar) {
-            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
+            toolbar.appendChild((this.editorInstance.ui.view as any).toolbar.element);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
     }
 
-    public onEditorReady(editor: CKEditor5.Editor): void {
-        this.editorInstance = editor;
+    public onEditorReady(editor: Editor): void {
+        this.editorInstance = editor as DecoupledEditor;
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
-        if (this.showInspector) {
-            this.Inspector.attach(this.editorInstance)
-        }
+        // if (this.showInspector) {
+        //     this.Inspector.attach(this.editorInstance)
+        // }
 
         // Set a custom container for the toolbar
         if (this.showToolbar) {
             const toolbar = this.getNativeElement().querySelector('#toolbar-container');
             if (toolbar.firstChild)
                 toolbar.removeChild(toolbar.firstChild);
-            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
+            toolbar.appendChild( (this.editorInstance.ui.view as any).toolbar.element);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
 
@@ -553,7 +549,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
             if (withInlineCSS) {
                 if (filterStylesheetName) {
-                    data = this.Editor.getInlineStyle(data, this.Editor.getCSSData(filterStylesheetName));
+                    data = this.editorInstance.getInlineStyle(data, this.getCSSData(filterStylesheetName));
                 }
             }
             return data;
@@ -561,20 +557,20 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return null;
     }
 
-    getCSSData(filterStylesheetName: boolean): string {
+    getCSSData(filterStylesheetName: string): string {
         if (filterStylesheetName) {
             let cssStyleSheetFilterArray = [filterStylesheetName, this.getEditorCSSStylesheetName()];
             let cssStyleSheetFilter = cssStyleSheetFilterArray.filter(value => {
                 return !!value;
             })
-            return this.Editor.getCssStyles(cssStyleSheetFilter);
+            return this.editorInstance.getCssStyles(cssStyleSheetFilter);
         } else {
-            return this.Editor.getCssStyles();
+            return this.editorInstance.getCssStyles();
         }
     }
 
     getPrintCSSData(): string {
-        return this.Editor.getPrintCSS();
+        return this.editorInstance.getPrintCSS();
     }
 
     private executePreviewHTML(html: string, readOnly?: boolean) {
