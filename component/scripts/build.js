@@ -8,4 +8,4 @@ zip.addLocalFolder("./dist/servoy/smartdocumenteditor/", "/dist/servoy/smartdocu
 zip.addLocalFolder("./smartdocumenteditor/", "/smartdocumenteditor/");
 zip.addLocalFolder("./dist/servoy/smartdocumenteditor/src/assets/lib/", "/dist/servoy/smartdocumenteditor/assets/lib/");
 
-zip.writeZip("SmartDocEditor.zip");
+zip.writeZip("smartdocumenteditor.zip");
