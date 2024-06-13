@@ -99,7 +99,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     return new Promise(resolve => {
                         setTimeout(() => {
                             const data = editor.getData();
+                            // Save the current cursor position
+                            const selection = editor.model.document.selection.getRanges().next().value;
+                            // Save data
                             _this.forceSaveData(data)
+                            
+                            // Restore the cursor position after saving
+                            editor.model.change(writer => {
+                                writer.setSelection(selection);
+                            });
+                            
                             resolve(data);
                         }, 200);
                     });
