@@ -1,7 +1,7 @@
 import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
-import { CKEditor5 } from '@ckeditor/ckeditor5-angular';
+import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -9,11 +9,11 @@ import { CKEditor5 } from '@ckeditor/ckeditor5-angular';
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
-    public Editor;
+    public Editor: any;
     public shouldshow = 0;
-    private Inspector;
+    private Inspector: any;
     private getFocusWhenReady = false;
-    private editorInstance: CKEditor5.Editor;
+    private editorInstance: any;
     private previewHTMLHTML: string;
     private previewHTMLreadOnly: boolean;
 
@@ -110,7 +110,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                             });
                             
                             resolve(data);
-                        }, 200);
+                        }, 100);
                     });
                 }
             }
@@ -260,7 +260,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    public onEditorReady(editor: CKEditor5.Editor): void {
+    public onEditorReady(editor: any): void {
         this.editorInstance = editor;
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
@@ -556,7 +556,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
             if (withInlineCSS) {
                 if (filterStylesheetName) {
-                    data = this.Editor.getInlineStyle(data, this.Editor.getCSSData(filterStylesheetName));
+                    data = this.Editor.getInlineStyle(data, this.getCSSData(filterStylesheetName));
                 }
             }
             return data;
@@ -564,7 +564,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return null;
     }
 
-    getCSSData(filterStylesheetName: boolean): string {
+    getCSSData(filterStylesheetName: string): string {
         if (filterStylesheetName) {
             let cssStyleSheetFilterArray = [filterStylesheetName, this.getEditorCSSStylesheetName()];
             let cssStyleSheetFilter = cssStyleSheetFilterArray.filter(value => {

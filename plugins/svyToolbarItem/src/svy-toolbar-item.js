@@ -2,7 +2,7 @@
  * @module SvyToolbarItem/SvyToolbarItem
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core';
 import SvyToolbarItemUi from './svy-toolbar-item-ui';
 
 /**

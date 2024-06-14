@@ -2,7 +2,7 @@
  * @module SvyPlaceholder/SvyPlaceholder
  */
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core';
 import SvyPlaceholderUi from './svy-placeholder-ui';
 import SvyPlaceholderEditing from './svy-placeholder-editing';
 

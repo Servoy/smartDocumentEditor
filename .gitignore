@@ -29,3 +29,6 @@ Thumbs.db
 # Exclude node modules
 node_modules/
 .history/
+
+#CKEditor build
+build/build

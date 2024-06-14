@@ -31,6 +31,7 @@ import ImageCaption from '@ckeditor/ckeditor5-image/src/imagecaption';
 import ImageStyle from '@ckeditor/ckeditor5-image/src/imagestyle';
 import ImageToolbar from '@ckeditor/ckeditor5-image/src/imagetoolbar';
 import ImageUpload from '@ckeditor/ckeditor5-image/src/imageupload';
+import PictureEditing from '@ckeditor/ckeditor5-image/src/pictureediting';
 import ImageResize from '@ckeditor/ckeditor5-image/src/imageresize';
 import ImageInsert from '@ckeditor/ckeditor5-image/src/imageinsert';
 import Indent from '@ckeditor/ckeditor5-indent/src/indent';
@@ -54,6 +55,7 @@ import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import Mention from '@ckeditor/ckeditor5-mention/src/mention';
 import CloudServices from '@ckeditor/ckeditor5-cloud-services/src/cloudservices';
 import Pagination from '@ckeditor/ckeditor5-pagination/src/pagination';
+
 
 import SvyToolbarItem from '../../plugins/svyToolbarItem/src/svy-toolbar-item';
 // import svyPlaceholder from '../../plugins/svyPlaceholder/src/svy-placeholder';
@@ -90,6 +92,7 @@ DecoupledEditor.builtinPlugins = [
 	ImageStyle,
 	ImageToolbar,
     ImageUpload,
+    PictureEditing,
     ImageResize,
 	ImageInsert,
 	Indent,

@@ -12,10 +12,10 @@ const webpack = require( 'webpack' );
 const { bundler, styles } = require( '@ckeditor/ckeditor5-dev-utils' );
 const CKEditorWebpackPlugin = require( '@ckeditor/ckeditor5-dev-webpack-plugin' );
 const { DuplicatesPlugin } = require("inspectpack/plugin");
-const CopyPlugin = require("copy-webpack-plugin");
+const FileManagerPlugin = require('filemanager-webpack-plugin');
+const WrapCkeditorPlugin = require('./webpack/wrap-plugin');
 
 module.exports = {
-	devtool: 'source-map',
 	performance: { hints: false },
 
 	entry: path.resolve( __dirname, 'src', 'ckeditor.js' ),
@@ -48,12 +48,17 @@ module.exports = {
             // Display full duplicates information? (Default: `false`)
             verbose: false
           }),
-        new CopyPlugin({
-            patterns: [
-              { from: "build", to: "../../component/smartdocumenteditor/lib" , force: true},
-              { from: "build", to: "../../component/projects/smartdocumenteditor/src/assets/lib", force: true},
-            ]
-          }),
+        new WrapCkeditorPlugin(),
+        new FileManagerPlugin({
+            events: {
+              onEnd: {
+                copy: [
+                    { source: "build/translations/*.js", destination: "../component/projects/smartdocumenteditor/assets/lib/translations", options: {overwrite: true} },
+                    { source: "build/*.js", destination: "../component/projects/smartdocumenteditor/src/assets/lib", options: {overwrite: true} },
+                ]
+              }
+            }
+        })
 	],
 
 	module: {
@@ -98,7 +103,5 @@ module.exports = {
           '@ckeditor/ckeditor5-widget': path.resolve(__dirname,'node_modules/@ckeditor/ckeditor5-widget'),
           '@ckeditor/ckeditor5-utils': path.resolve(__dirname,'node_modules/@ckeditor/ckeditor5-utils')
       }
-    },
-    devtool: 'source-map',
-    performance: { hints: false }
+    }
 };
