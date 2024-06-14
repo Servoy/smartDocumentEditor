@@ -2,6 +2,7 @@ import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChil
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
+import {DecoupledEditor} from '@ckeditor/ckeditor5-editor-decoupled';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -9,11 +10,11 @@ import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
-    public Editor: any;
+    public Editor: typeof DecoupledEditor;
     public shouldshow = 0;
     private Inspector: any;
     private getFocusWhenReady = false;
-    private editorInstance: any;
+    private editorInstance: DecoupledEditor;
     private previewHTMLHTML: string;
     private previewHTMLreadOnly: boolean;
 
@@ -54,7 +55,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService) {
         super(renderer, cdRef);
         import('../assets/lib/ckeditor').then((module) => {
-            this.Editor = module.default;
+            this.Editor = module.default as typeof DecoupledEditor;
             this.shouldshow++;
             this.cdRef.detectChanges();
         });
@@ -278,13 +279,13 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
 
-        this.editorInstance.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+        (this.editorInstance.plugins.get('FileRepository') as any).createUploadAdapter = (loader) => {
             return new ServoyUploadAdapter(loader, this.servoyService.generateUploadUrl(this.servoyApi.getFormName(), this.name, 'onFileUploadedMethodID'), this.onFileUploadedMethodID);
         };
 
         // Disable the plugin so that no pagination is use are visible.
         if (this.viewType != this.VIEW_TYPE.DOCUMENT) {
-            this.editorInstance.plugins.get('Pagination').isEnabled = false;
+            (this.editorInstance.plugins.get('Pagination') as any).isEnabled = false;
         }
 
         if (this.overWriteTabForEditor) {
@@ -556,7 +557,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
             if (withInlineCSS) {
                 if (filterStylesheetName) {
-                    data = this.Editor.getInlineStyle(data, this.getCSSData(filterStylesheetName));
+                    data = (this.Editor as any).getInlineStyle(data, this.getCSSData(filterStylesheetName));
                 }
             }
             return data;
@@ -570,14 +571,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             let cssStyleSheetFilter = cssStyleSheetFilterArray.filter(value => {
                 return !!value;
             })
-            return this.Editor.getCssStyles(cssStyleSheetFilter);
+            return (this.Editor as any).getCssStyles(cssStyleSheetFilter);
         } else {
-            return this.Editor.getCssStyles();
+            return (this.Editor as any).getCssStyles();
         }
     }
 
     getPrintCSSData(): string {
-        return this.Editor.getPrintCSS();
+        return (this.Editor as any).getPrintCSS();
     }
 
     private executePreviewHTML(html: string, readOnly?: boolean) {

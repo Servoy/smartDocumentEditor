@@ -248,5 +248,6 @@ DecoupledEditor.defaultConfig = {
             left: '12mm'
         }
     },
-    licenseKey: 't7bGBeslyKqcZezJC2Pe6/6rHqWZbzMrAfE4KpTLUYdFlSNUCqVHK98UmOtEPw=='
+    //KEY BELOW ISN'T PART OF THE MIT AGREEMENT!!
+    licenseKey: 'dnVNblgyNmdaWjg2ay9tT2o2dU9vVXFqdHhKa1U2MTJwSVkvUmhPVVRMUWU1OXl3V1VnTWZTSU5YdTgyRE1IdWJnPT0tTWpBeU5UQTFNREU9'
 };
