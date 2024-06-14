@@ -8,5 +8,5 @@
   "lib": {
     "entryFile": "src/public-api.ts"
   },
-  "allowedNonPeerDependencies": ["@ckeditor/ckeditor5-angular", "@ckeditor/ckeditor5-core", "@ckeditor/ckeditor5-watchdog", "@ckeditor/ckeditor5-utils", "@ckeditor/ckeditor5-engine","@angular/cdk"]
+  "allowedNonPeerDependencies": ["@ckeditor/ckeditor5-angular", "@ckeditor/ckeditor5-core", "@ckeditor/ckeditor5-watchdog", "@ckeditor/ckeditor5-utils", "@ckeditor/ckeditor5-engine", "@ckeditor/ckeditor5-editor-decoupled","@angular/cdk"]
 }
