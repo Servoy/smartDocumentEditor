@@ -192,11 +192,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'dataProviderID':
-                        if (!change.isFirstChange()) {
-                            if (this.editorInstance && !this.editorInstance.editing.view.document.isFocused) {
+                            if(this.editorInstance && this.dataProviderID != this.editorInstance.getData()) {
+                                console.info('Setting new data from broadcast')
                                 this.editorInstance.setData(this.dataProviderID || '');
                             }
-                        }
                         break;
                     case 'editorStyleSheet':
                         this.document.head.removeAttribute("[customSmartDocumentEditor]")
@@ -263,6 +262,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     public onEditorReady(editor: any): void {
         this.editorInstance = editor;
+        this.editorInstance.setData(this.dataProviderID || '');
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
