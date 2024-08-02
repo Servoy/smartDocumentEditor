@@ -77,8 +77,8 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
                         angular.element("head > [customSmartDocumentEditor]").remove();
                         //Add new client stylesheet
                         if(value) {
-                            let url = value.split('?')[0];
-                            let additions = value.split('?')[1].split('&').filter((item) => {
+                            let url = value.split('?').shift();
+                            let additions = value.split('?').pop().split('&').filter((item) => {
                                 return item.startsWith('clientnr');
                             });
                             if(additions.length) {
@@ -143,7 +143,7 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
              */
             function getEditorCSSStylesheetName() {
                 if($scope.model.editorStyleSheet) {
-                    let name = $scope.model.editorStyleSheet.split('?')[0];
+                    let name = $scope.model.editorStyleSheet.split('?').shift();
                     name = name.split('/').pop();
                     return name;
                 } else {

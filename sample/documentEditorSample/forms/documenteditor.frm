@@ -75,6 +75,7 @@ top:"0",
 width:"-1"
 },
 dataProviderID:"CKDATA",
+editorStyleSheet:"6949031D-CAC9-4A0E-98AC-CA9E487F89B5",
 formIndex:0,
 onActionMethodID:"E30BFB0E-9FA1-41EA-84B3-1AA507A654FC",
 onDataChangeMethodID:"F8DCF8EF-A60D-4154-992C-0687FEC5E710",

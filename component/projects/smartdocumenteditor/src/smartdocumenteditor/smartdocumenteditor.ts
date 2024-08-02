@@ -201,8 +201,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         this.document.head.removeAttribute("[customSmartDocumentEditor]")
 
                         if (this.editorStyleSheet) {
-                            let url = this.editorStyleSheet.split('?')[0];
-                            let additions = this.editorStyleSheet.split('?')[1].split('&').filter((item) => {
+                            let url = this.editorStyleSheet.split('?').shift();
+                            let additions = this.editorStyleSheet.split('?').pop().split('&').filter((item) => {
                                 return item.startsWith('clientnr');
                             });
                             if (additions.length) {
@@ -474,7 +474,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     getEditorCSSStylesheetName(): string {
         if (this.editorStyleSheet) {
-            let name = this.editorStyleSheet.split('?')[0];
+            let name = this.editorStyleSheet.split('?').shift();
             name = name.split('/').pop();
             return name;
         } else {
