@@ -556,9 +556,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.editorInstance) {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
             if (withInlineCSS) {
-                if (filterStylesheetName) {
-                    data = (this.Editor as any).getInlineStyle(data, this.getCSSData(filterStylesheetName));
-                }
+                data = (this.Editor as any).getInlineStyle(data, this.getCSSData(filterStylesheetName));
             }
             return data;
         }
