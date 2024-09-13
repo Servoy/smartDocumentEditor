@@ -26,7 +26,7 @@ function setMentionFeeds(mentionFeeds) {
 /**
  * Force the autosave trigger of the editor to get all latest changes
  * @example dataprovider = elements.%%elementName%%.saveData();
- * @returns {Object} the data currently in the editor.
+ * @return {Object} the data currently in the editor.
  */
 function saveData() {
 }
@@ -35,7 +35,7 @@ function saveData() {
  * Add input to current cursor position, will return false when in readOnly mode
  * @example elements.%%elementName%%.addInputAtCursor(input);
  * @param {String} input
- * @returns {Boolean}
+ * @return {Boolean}
  */
 function addInputAtCursor(input) {
 }
@@ -45,7 +45,7 @@ function addInputAtCursor(input) {
  * @example elements.%%elementName%%.addTagAtCursor(tag);
  * @param {String} marker
  * @param {String} tag
- * @returns {Boolean}
+ * @return {Boolean}
  */
 function addTagAtCursor(marker, tag) {
 }
@@ -96,7 +96,7 @@ function undoPreviewHTML(readOnly) {
 
 /**
  * Return if editor is in preview mode (CKEditor readOnly)
- * @returns boolean
+ * @return boolean
  * @public 
  */
 function isInPreviewMode() {
