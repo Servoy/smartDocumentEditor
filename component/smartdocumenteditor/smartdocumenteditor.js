@@ -41,12 +41,12 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
                             }
                         }
                         break;
-                    case "readOnly":
+                    case "editable":
                         if($scope.editor) {
-                            if(!!value) {
-                                $scope.editor.enableReadOnlyMode('readonly');
-                            } else {
+                            if(value) {
                                 $scope.editor.disableReadOnlyMode('readonly');
+                            } else {
+                                $scope.editor.enableReadOnlyMode('readonly');
                             }
                         }
                         break;
@@ -156,8 +156,8 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
               */
             function forceSaveData( data ) {
                 if($scope.editor) {
-                    if(!$scope.model.readOnly && $scope.editor && !$scope.prePreviewData) {
-                        console.debug( 'Editor push Trigger (ID: ' + $scope.editor.id + ', readOnly: ' + $scope.model.readOnly + ', formname: ' +  $scope.$parent['formname'] + ') , pushing data');
+                    if($scope.model.editable && $scope.editor && !$scope.prePreviewData) {
+                        console.debug( 'Editor push Trigger (ID: ' + $scope.editor.id + ', editable: ' + $scope.model.editable + ', formname: ' +  $scope.$parent['formname'] + ') , pushing data');
                         $scope.model.dataProviderID = data;
                         $scope.svyServoyapi.apply('dataProviderID');
                     }
@@ -760,7 +760,7 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
 
                             if($scope.handlers.onActionMethodID) {
                                 editor.listenTo(editor.editing.view.document, 'click', (evt) => {
-                                    if($scope.model.readOnly) {
+                                    if(!$scope.model.editable) {
                                         $scope.handlers.onActionMethodID(createJSEvent(event, 'onAction'));
                                     }
                                 })
@@ -821,7 +821,7 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
              */
             $scope.api.addInputAtCursor = function(input) {
                 if(input) {
-                    if($scope.model.readOnly || !$scope.editor) {
+                    if(!$scope.model.editable || !$scope.editor) {
                         return false;
                     }
                     $scope.editor.execute('input', { text: input })
@@ -838,7 +838,7 @@ function($sabloConstants, $sabloApplication, $window, $utils, $timeout) {
              */
             $scope.api.addTagAtCursor = function(marker, tag) {
                 if(tag) {
-                    if($scope.model.readOnly || !$scope.editor) {
+                    if(!$scope.model.editable || !$scope.editor) {
                         return false;
                     }
 

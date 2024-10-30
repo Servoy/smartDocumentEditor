@@ -122,7 +122,7 @@
         "showToolbar": { "type": "boolean", "default": true },
         "overWriteTabForEditor": { "type": "boolean", "default": true, "tags": {"scope": "design"} },
         "styleClass": {"type": "styleclass"},
-        "readOnly": { "type": "protected", "blockingOn": true, "default": false, "for": [ "dataProviderID", "onDataChangeMethodID" ], "tags": {"scope": "runtime"} },
+        "editable" : { "type": "protected", "blockingOn": false, "default": true,"for": ["dataProviderID","onDataChangeMethodID"] },
         "responsiveHeight": { "type": "int", "default": 500, "tags": {"doc": "Editor's height to be set in a responsive form. When responsiveHeight is set to 0, the editor will use 100% height of the parent container. When value is set to -1 it will be based on the content."} },
         "minHeight": { "type": "int", "default": null, "tags": {"doc": "Editor's min height. It's none by default. So when you want the height to be resposive and would like to have a min height for the editor, set responsiveHeight as 0 and this property with the value that fits your needs."} },
         "visible": "visible",
