@@ -1,20 +1,20 @@
 {
   "name": "@servoy/smartdocumenteditor",
-  "version": "2024.3.3",
+  "version": "2024.12.0",
   "peerDependencies": {
-    "@angular/animations": "^17",
-    "@angular/cdk": "^17",
-    "@angular/common": "^17",
-    "@angular/core": "^17",
-    "@angular/forms": "^17"
+    "@angular/animations": "^18",
+    "@angular/cdk": "^18",
+    "@angular/common": "^18",
+    "@angular/core": "^18",
+    "@angular/forms": "^18"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-angular": "7.0.1",
-    "@ckeditor/ckeditor5-core": "41.3.0",
-    "@ckeditor/ckeditor5-utils": "41.3.0",
-    "@ckeditor/ckeditor5-engine": "41.3.0",
-    "@ckeditor/ckeditor5-watchdog": "41.3.0",
-    "@ckeditor/ckeditor5-editor-decoupled": "41.3.0",
+    "@ckeditor/ckeditor5-angular": "9.1.0",
+    "@ckeditor/ckeditor5-core": "44.0.0",
+    "@ckeditor/ckeditor5-utils": "44.0.0",
+    "@ckeditor/ckeditor5-engine": "44.0.0",
+    "@ckeditor/ckeditor5-watchdog": "41.4.0",
+    "@ckeditor/ckeditor5-editor-decoupled": "44.0.0",
     "@angular/cdk": "<18",
     "tslib": "*"
   },
