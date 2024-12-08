@@ -248,6 +248,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         super.svyOnChanges(changes);
     }
 
+    ngOnDestroy() {
+        if(this.editorInstance) {
+            this.editorInstance.destroy().catch( error => {
+                console.log( error );
+            } );
+        }
+    }
+
     public toggleToolbar() {
         const toolbar = this.getNativeElement().querySelector('#toolbar-container');
         if (toolbar.firstChild) {
