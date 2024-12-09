@@ -21,15 +21,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Find component directory
+      id: find_component_dir
+      run: echo "COMPONENT_DIR=$(find . -type d -name 'META-INF' -exec dirname {} \;)" >> $GITHUB_ENV
+
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '22.x'
         cache: 'npm'
-        cache-dependency-path: ./component/package-lock.json
+        cache-dependency-path: ${{ env.COMPONENT_DIR }}/package-lock.json
 
     - name: Install and build component
-      working-directory: ./component
+      working-directory: ${{ env.COMPONENT_DIR }}
       run: |
         npm install
         npm run make_release
@@ -37,7 +41,7 @@ jobs:
     - name: Extract version number
       uses: nyaa8/package-version@v1.0.3
       with:
-        path: ./component/package.json
+        path: ${{ env.COMPONENT_DIR }}/package.json
 
     - name: Get branch name
       run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
@@ -70,6 +74,6 @@ jobs:
     - name: Upload assets
       if: env.release_exists == 'true'
       run: |
-        gh release upload "_${{ env.BRANCH_NAME }}" ./component/*.zip
+        gh release upload "_${{ env.BRANCH_NAME }}" ${{ env.COMPONENT_DIR }}/*.zip
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
