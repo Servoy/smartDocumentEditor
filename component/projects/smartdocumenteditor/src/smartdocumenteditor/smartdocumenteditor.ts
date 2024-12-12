@@ -12,7 +12,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     public Editor: typeof DecoupledEditor;
     public shouldshow = 0;
-    private Inspector: any;
     private getFocusWhenReady = false;
     private editorInstance: DecoupledEditor;
     private previewHTMLHTML: string;
@@ -56,11 +55,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         super(renderer, cdRef);
         import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
-            this.shouldshow++;
-            this.cdRef.detectChanges();
-        });
-        import('../assets/lib/inspector').then((module) => {
-            this.Inspector = module.default;
             this.shouldshow++;
             this.cdRef.detectChanges();
         });
@@ -275,7 +269,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         const viewDocument = view.document;
 
         if (this.showInspector) {
-            this.Inspector.attach(this.editorInstance)
+            console.log('Attaching inspector is removed/disabled in SmartDocumentEditor starting from version 2024.12.0' );
         }
 
         // Set a custom container for the toolbar

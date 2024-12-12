@@ -189,7 +189,7 @@
             ],
             "default": null
         },
-        "showInspector": { "type": "boolean", "default": false, "tags": {"scope": "design"} },
+        "showInspector": { "type": "boolean", "default": false, "deprecated": "Removed in version 2024.12", "tags": {"scope": "design"} },
         "mentionFeeds": { "type": "mentionFeed[]", "tags": {"scope": "design"} },
         "editorStyleSheet": { "type": "media", "tags": {"doc": "Attach a style sheet to add or overwrite content styles used by the editor. Make sure to prefix all classes with the <code>.ck-content<\/code> class."} }
     },

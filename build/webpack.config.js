@@ -14,6 +14,7 @@ const CKEditorWebpackPlugin = require( '@ckeditor/ckeditor5-dev-webpack-plugin' 
 const { DuplicatesPlugin } = require("inspectpack/plugin");
 const FileManagerPlugin = require('filemanager-webpack-plugin');
 const WrapCkeditorPlugin = require('./webpack/wrap-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
 	performance: { hints: false },
@@ -49,12 +50,17 @@ module.exports = {
             verbose: false
           }),
         new WrapCkeditorPlugin(),
+        new MiniCssExtractPlugin({
+            filename: 'ckeditorStyle.css', // Output filename for the CSS files
+            chunkFilename: 'ckeditorStyle.css',
+          }),
         new FileManagerPlugin({
             events: {
               onEnd: {
                 copy: [
                     { source: "build/translations/*.js", destination: "../component/projects/smartdocumenteditor/assets/lib/translations", options: {overwrite: true} },
                     { source: "build/*.js", destination: "../component/projects/smartdocumenteditor/src/assets/lib", options: {overwrite: true} },
+                    { source: "build/*.css", destination: "../component/projects/smartdocumenteditor/assets", options: {overwrite: true} }
                 ]
               }
             }
@@ -67,32 +73,20 @@ module.exports = {
                 test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
                 use: [ 'raw-loader' ]
             },
-			{
-                test: /ckeditor5-[^/\\]+[/\\]theme[/\\].+\.css$/,
-                use: [
-                    {
-                        loader: 'style-loader',
-                        options: {
-                            injectType: 'singletonStyleTag',
-                            attributes: {
-                                'data-cke': true
-                            }
-                        }
-                    },
-                    'css-loader',
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: styles.getPostCssConfig( {
-                                themeImporter: {
-                                    themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
-                                },
-                                minify: true
-                            } )
-                        }
+            {
+                test: /\.css$/,
+                use: [MiniCssExtractPlugin.loader, 'css-loader',{
+                    loader: 'postcss-loader',
+                    options: {
+                        postcssOptions: styles.getPostCssConfig( {
+                            themeImporter: {
+                                themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
+                            },
+                            minify: true
+                        } )
                     }
-                ]
-            }
+                }]
+              }
 		]
 	},
 
