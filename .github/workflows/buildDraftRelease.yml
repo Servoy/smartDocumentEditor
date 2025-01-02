@@ -7,10 +7,6 @@ on:
       - 20**
       - v20**
   workflow_dispatch:
-  create:
-    branches:
-      - 20**
-      - v20**
 
 jobs:
   build:
