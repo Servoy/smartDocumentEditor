@@ -6,7 +6,8 @@ import {DecoupledEditor} from '@ckeditor/ckeditor5-editor-decoupled';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
-    templateUrl: './smartdocumenteditor.html'
+    templateUrl: './smartdocumenteditor.html',
+    standalone: false
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
