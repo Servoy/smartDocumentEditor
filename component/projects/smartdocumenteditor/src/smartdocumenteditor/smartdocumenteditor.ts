@@ -105,7 +105,9 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
 
         if (!this.config.language) {
-            this.config.language = this.getCurrentLanguage();
+            const userLanguage = this.getCurrentLanguage();
+            console.debug('SmartDocument Editor setting language to: ' + userLanguage);
+            this.config.language = userLanguage;
         }
 
         this.importLocale();
@@ -462,6 +464,9 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
         let locale = this.servoyService.getLocale();
         if (locale) {
+            if(locale.toLowerCase() == 'en-us') {
+                return 'en';
+            }
             return locale;
         }
         return 'en';
