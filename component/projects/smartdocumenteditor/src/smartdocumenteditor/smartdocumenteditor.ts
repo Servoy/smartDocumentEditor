@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef } from '@angular/core';
+import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef, NgZone } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
@@ -51,7 +51,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     @Output() dataProviderIDChange = new EventEmitter();
 
-    constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService) {
+    constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService, private zone: NgZone) {
         super(renderer, cdRef);
         import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
@@ -88,24 +88,17 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             }
         }
         if (!this.config.autosave) {
-            const _this = this
             this.config.autosave = {
-                save(editor) {
-                    return new Promise(resolve => {
-                        setTimeout(() => {
-                            const data = editor.getData();
-                            // Save the current cursor position
-                            const selection = editor.model.document.selection.getRanges().next().value;
-                            // Save data
-                            _this.forceSaveData(data)
-                            
-                            // Restore the cursor position after saving
-                            editor.model.change(writer => {
-                                writer.setSelection(selection);
-                            });
-                            
-                            resolve(data);
-                        }, 100);
+                save: editor => {
+                    return new Promise( resolve => {
+                        this.zone.run(() => {
+                            setTimeout(() => {
+                                const data = this.getEditorData();
+                                // Save data
+                                this.forceSaveData(data)
+                                resolve(data);
+                            }, 100);
+                        })
                     });
                 }
             }
@@ -186,8 +179,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'dataProviderID':
-                            if(this.editorInstance && this.dataProviderID != this.editorInstance.getData()) {
-                                console.info('Setting new data from broadcast')
+                            if(this.editorInstance && this.dataProviderID != this.getEditorData()) {
+                                console.debug('Setting new data from broadcast')
                                 this.editorInstance.setData(this.dataProviderID || '');
                             }
                         break;
@@ -315,7 +308,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     if (this.onFocusLostMethodID) {
                         this.onFocusLostMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusLost'));
                     }
-                    this.forceSaveData(this.editorInstance.getData());
+                    this.forceSaveData(this.getEditorData());
                 }
             });
         }
@@ -488,16 +481,29 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     forceSaveData(data: string) {
         if (this.editable && this.editorInstance && !this.prePreviewData) {
             this.dataProviderID = data;
-            this.dataProviderIDChange.emit(this.dataProviderID);
+            this.dataProviderIDChange.emit(data);
         }
     }
 
     saveData() {
         if (this.editorInstance) {
-            this.forceSaveData(this.editorInstance.getData());
-            return this.editorInstance.getData();
+            const data = this.getEditorData();
+            this.forceSaveData(data);
+            return data;
         }
         return null;
+    }
+
+    /**
+     * Returns the data from the editor
+     * @private
+     * @returns {string}
+     */
+    getEditorData() {
+        if (this.editorInstance) {
+            return this.editorInstance.getData({trim: 'empty'})||'';
+        }
+        return ''
     }
 
     addInputAtCursor(input: string) {
@@ -556,7 +562,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     getHTMLData(withInlineCSS: boolean, filterStylesheetName: string): string {
         if (this.editorInstance) {
-            let data = '<html><body><div class="ck-content" dir="ltr">' + this.editorInstance.getData() + '</div></body></html>';
+            let data = '<html><body><div class="ck-content" dir="ltr">' + this.getEditorData() + '</div></body></html>';
             if (withInlineCSS) {
                 data = (this.Editor as any).getInlineStyle(data, this.getCSSData(filterStylesheetName));
             }
@@ -582,7 +588,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     private executePreviewHTML(html: string, readOnly?: boolean) {
-        this.prePreviewData = this.editorInstance.getData();
+        this.prePreviewData = this.getEditorData();
         if (!!(readOnly != undefined ? readOnly : true)) {
             this.editorInstance.enableReadOnlyMode('readonly');
         } else {
@@ -599,7 +605,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             return;
         }
         //Force save current HTML Editor;
-        this.forceSaveData(this.editorInstance.getData());
+        this.forceSaveData(this.getEditorData());
         this.executePreviewHTML(html, readOnly);
     }
 
