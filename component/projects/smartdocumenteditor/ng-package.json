@@ -1,12 +1,46 @@
 {
-  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/servoy/smartdocumenteditor",
-  "assets": [
-         "assets",
-         "src/assets"
+    "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+    "dest": "../../dist/servoy/smartdocumenteditor",
+    "assets": [
+        "assets",
+        "src/assets"
     ],
-  "lib": {
-    "entryFile": "src/public-api.ts"
-  },
-  "allowedNonPeerDependencies": ["@ckeditor/ckeditor5-angular", "@ckeditor/ckeditor5-core", "@ckeditor/ckeditor5-watchdog", "@ckeditor/ckeditor5-utils", "@ckeditor/ckeditor5-engine", "@ckeditor/ckeditor5-editor-decoupled","@angular/cdk"]
+    "lib": {
+        "entryFile": "src/public-api.ts"
+    },
+    "allowedNonPeerDependencies": [
+        "@angular/cdk",
+        "@ckeditor/ckeditor5-adapter-ckfinder",
+        "@ckeditor/ckeditor5-alignment",
+        "@ckeditor/ckeditor5-angular",
+        "@ckeditor/ckeditor5-autoformat",
+        "@ckeditor/ckeditor5-autosave",
+        "@ckeditor/ckeditor5-basic-styles",
+        "@ckeditor/ckeditor5-block-quote",
+        "@ckeditor/ckeditor5-ckfinder",
+        "@ckeditor/ckeditor5-cloud-services",
+        "@ckeditor/ckeditor5-core",
+        "@ckeditor/ckeditor5-easy-image",
+        "@ckeditor/ckeditor5-editor-decoupled",
+        "@ckeditor/ckeditor5-engine",
+        "@ckeditor/ckeditor5-essentials",
+        "@ckeditor/ckeditor5-font",
+        "@ckeditor/ckeditor5-heading",
+        "@ckeditor/ckeditor5-highlight",
+        "@ckeditor/ckeditor5-horizontal-line",
+        "@ckeditor/ckeditor5-image",
+        "@ckeditor/ckeditor5-indent",
+        "@ckeditor/ckeditor5-link",
+        "@ckeditor/ckeditor5-list",
+        "@ckeditor/ckeditor5-media-embed",
+        "@ckeditor/ckeditor5-mention",
+        "@ckeditor/ckeditor5-page-break",
+        "@ckeditor/ckeditor5-pagination",
+        "@ckeditor/ckeditor5-paste-from-office",
+        "@ckeditor/ckeditor5-special-characters",
+        "@ckeditor/ckeditor5-table",
+        "@ckeditor/ckeditor5-utils",
+        "@ckeditor/ckeditor5-watchdog",
+        "juice"
+    ]
 }

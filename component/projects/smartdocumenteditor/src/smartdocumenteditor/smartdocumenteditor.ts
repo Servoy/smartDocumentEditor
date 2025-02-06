@@ -2,7 +2,8 @@ import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChil
 import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
-import {DecoupledEditor} from '@ckeditor/ckeditor5-editor-decoupled';
+import { EditorConfig } from '@ckeditor/ckeditor5-core';
+import DecoupledEditor from '../ckeditor/ckeditor';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -11,7 +12,7 @@ import {DecoupledEditor} from '@ckeditor/ckeditor5-editor-decoupled';
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
-    public Editor: typeof DecoupledEditor;
+    public Editor = DecoupledEditor;
     public shouldshow = 0;
     private getFocusWhenReady = false;
     private editorInstance: DecoupledEditor;
@@ -38,7 +39,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     @Input() showInspector: boolean;
     @Input() mentionFeeds: Array<MentionFeed>;
     @Input() editorStyleSheet: string;
-    @Input() config: any;
+    @Input() config: EditorConfigExtended;
     @Input() prePreviewData: string;
     @Input() minHeight: number;
 
@@ -54,7 +55,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService, private zone: NgZone) {
         super(renderer, cdRef);
-        import('../assets/lib/ckeditor').then((module) => {
+        import('../ckeditor/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
             this.shouldshow++;
             this.cdRef.detectChanges();
@@ -64,7 +65,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     svyOnInit() {
         super.svyOnInit();
         if (!this.config) {
-            this.config = {};
+            this.config = this.Editor.defaultConfig as EditorConfigExtended;
         }
         this.config.toolbar = {
             items: this.getToolbarItems()
@@ -91,7 +92,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (!this.config.autosave) {
             this.config.autosave = {
                 save: editor => {
-                    return new Promise( resolve => {
+                    return new Promise(resolve => {
                         this.zone.run(() => {
                             setTimeout(() => {
                                 const data = this.getEditorData();
@@ -113,27 +114,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
         this.importLocale();
 
-
-        // note The pagination feature is by default enabled only in browsers that are using the Blink engine (Chrome, Chromium, newer Edge, newer Opera). 
-        // This behavior can be modified by setting this configuration option to true.
-        // config.pagination.enableOnUnsupportedBrowsers
-        if (!this.config.pagination) {
-            if (this.viewType == this.VIEW_TYPE.DOCUMENT) {
-                // TODO does require the pagination plugin ?
-
-                // NOTE: when height is auto, in responsive form cannot use pagination.
-                this.config.pagination = {
-                    // A4
-                    pageWidth: '21cm',
-                    pageHeight: '29.7cm',
-                    pageMargins: {
-                        top: '20mm',
-                        bottom: '20mm',
-                        right: '12mm',
-                        left: '12mm'
-                    }
-                }
-            }
+        // setting diffrent pagination for document view
+        // default configuration is set in the ckeditor component
+        if (this.viewType !== this.VIEW_TYPE.DOCUMENT) {
+            // TODO change the default configuration this.config.pagination = { .... };
         }
     }
 
@@ -182,10 +166,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'dataProviderID':
-                            if(this.editorInstance && this.dataProviderID != this.getEditorData()) {
-                                console.debug('Setting new data from broadcast')
-                                this.editorInstance.setData(this.dataProviderID || '');
-                            }
+                        if (this.editorInstance && this.dataProviderID != this.editorInstance.getData()) {
+                            console.info('Setting new data from broadcast')
+                            this.editorInstance.setData(this.dataProviderID || '');
+                        }
                         break;
                     case 'editorStyleSheet':
                         this.document.head.removeAttribute("[customSmartDocumentEditor]")
@@ -239,10 +223,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     ngOnDestroy() {
-        if(this.editorInstance) {
-            this.editorInstance.destroy().catch( error => {
-                console.log( error );
-            } );
+        if (this.editorInstance) {
+            this.editorInstance.destroy().catch(error => {
+                console.log(error);
+            });
         }
     }
 
@@ -258,14 +242,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    public onEditorReady(editor: any): void {
+    public onEditorReady(editor: DecoupledEditor): void {
         this.editorInstance = editor;
         this.editorInstance.setData(this.dataProviderID || '');
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
         if (this.showInspector) {
-            console.log('Attaching inspector is removed/disabled in SmartDocumentEditor starting from version 2024.12.0' );
+            console.log('Attaching inspector is removed/disabled in SmartDocumentEditor starting from version 2024.12.0');
         }
 
         // Set a custom container for the toolbar
@@ -465,7 +449,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
         let locale = this.servoyService.getLocale();
         if (locale) {
-            if(locale.toLowerCase() == 'en-us') {
+            if (locale.toLowerCase() == 'en-us') {
                 return 'en';
             }
             return locale;
@@ -507,7 +491,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
      */
     getEditorData() {
         if (this.editorInstance) {
-            return this.editorInstance.getData({trim: 'empty'})||'';
+            return this.editorInstance.getData({ trim: 'empty' }) || '';
         }
         return ''
     }
@@ -570,7 +554,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.editorInstance) {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.getEditorData() + '</div></body></html>';
             if (withInlineCSS) {
-                data = (this.Editor as any).getInlineStyle(data, this.getCSSData(filterStylesheetName));
+                data = this.Editor.getInlineStyle(data, this.getCSSData(filterStylesheetName));
             }
             return data;
         }
@@ -583,14 +567,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             let cssStyleSheetFilter = cssStyleSheetFilterArray.filter(value => {
                 return !!value;
             })
-            return (this.Editor as any).getCssStyles(cssStyleSheetFilter);
+            return this.Editor.getCssStyles(cssStyleSheetFilter);
         } else {
-            return (this.Editor as any).getCssStyles();
+            return this.Editor.getCssStyles();
         }
     }
 
     getPrintCSSData(): string {
-        return (this.Editor as any).getPrintCSS();
+        return this.Editor.getPrintCSS();
     }
 
     private executePreviewHTML(html: string, readOnly?: boolean) {
@@ -637,16 +621,24 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             this.getFocusWhenReady = true;
         }
     }
-    
+
     private importLocale() {
         var script = this.document.createElement("script");
-        const index = this.document.baseURI.indexOf('/',8);
+        const index = this.document.baseURI.indexOf('/', 8);
         const context = index > 0 ? this.document.baseURI.substring(index) : '/';
         script.src = `${context}locales/smartdocumenteditor/${this.config.language.toLowerCase()}.js`;
 
         // append and execute script
         this.document.documentElement.firstChild.appendChild(script);
     }
+}
+export class EditorConfigExtended implements EditorConfig {
+    toolbar?: { items: Array<string> };
+    extraPlugins?: Array<any>;
+    language?: string;
+    autosave?: { save: (editor: DecoupledEditor) => Promise<string>; }
+    svyToolbarItems?: Array<any>;
+    mention?: { feeds: Array<any>; }
 }
 export class ToolbarItem extends BaseCustomObject {
     name: string;
@@ -804,7 +796,7 @@ class ServoyUploadAdapter {
 }
 
 class SvyMentionConverter {
-    constructor(editor: any) {
+    constructor(editor: DecoupledEditor) {
         editor.conversion.for('upcast').elementToAttribute({
             view: {
                 name: 'span',
