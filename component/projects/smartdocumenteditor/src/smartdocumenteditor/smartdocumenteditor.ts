@@ -106,7 +106,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             }
         }
 
-        if (!this.config.language) {
+        if (this.config.language !== this.getCurrentLanguage()) {
             const userLanguage = this.getCurrentLanguage();
             console.debug('SmartDocument Editor setting language to: ' + userLanguage);
             this.config.language = userLanguage;
@@ -119,6 +119,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.viewType !== this.VIEW_TYPE.DOCUMENT) {
             // TODO change the default configuration this.config.pagination = { .... };
         }
+        
+        this.cdRef.detectChanges();
     }
 
 
