@@ -825,7 +825,7 @@ class SvyMentionConverter {
             view: (modelAttributeValue, { writer }) => {
                 // Do not convert empty attributes (lack of value means no mention).
                 if (!modelAttributeValue) {
-                    return;
+                    return null;
                 }
 
                 let elementType = 'span';

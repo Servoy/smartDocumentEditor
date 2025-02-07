@@ -62,7 +62,6 @@ import juice from 'juice';
 
 export default class DecoupledEditor extends DecoupledEditorBase {
     static getInlineStyle(data, style) {
-        console.log('test')
         return juice.inlineContent(data, style || this.getCssStyles(), { preserveMediaQueries: false, preserveImportant: true, preserveFontFaces: false });
     }
 
