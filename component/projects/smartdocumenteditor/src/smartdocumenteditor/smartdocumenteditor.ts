@@ -14,6 +14,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     public Editor = DecoupledEditor;
     public shouldshow = 0;
+    public configChanging = false;
     private getFocusWhenReady = false;
     private editorInstance: DecoupledEditor;
     private previewHTMLHTML: string;
@@ -199,6 +200,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         break;
                     case 'config':
                         //console.debug("Configuration change detected, new config: " + JSON.stringify(this.config));
+                        this.refresh();
                         break;
                     case 'mentionFeeds':
                         if (this.config && this.mentionFeeds && this.mentionFeeds.length) {
@@ -214,6 +216,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                     this.config.extraPlugins = [SvyMentionConverter];
                                 }
                             }
+                            this.refresh();
                         }
                         break;
                 }
@@ -228,6 +231,13 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 console.log(error);
             });
         }
+    }
+    
+    refresh() {
+        // refresh the editor
+        this.configChanging = true;
+        this.cdRef.detectChanges();
+        this.configChanging = false;
     }
 
     public toggleToolbar() {
