@@ -56,7 +56,7 @@ import { CloudServices } from '@ckeditor/ckeditor5-cloud-services';
 import { Pagination } from '@ckeditor/ckeditor5-pagination';
 import { EditorConfig } from '@ckeditor/ckeditor5-core';
 
-import { SvyToolbarItem } from '../plugins/toolbar/svy-toolbar-item';
+import { SvyToolbarItem } from '../../plugins/toolbar/svy-toolbar-item';
 
 import juice from 'juice';
 

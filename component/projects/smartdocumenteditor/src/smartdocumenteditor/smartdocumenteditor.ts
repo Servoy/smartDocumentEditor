@@ -3,7 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import { EditorConfig } from '@ckeditor/ckeditor5-core';
-import DecoupledEditor from '../ckeditor/ckeditor';
+import DecoupledEditor from '../assets/lib/ckeditor';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
@@ -55,7 +55,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService, private zone: NgZone) {
         super(renderer, cdRef);
-        import('../ckeditor/ckeditor').then((module) => {
+        import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
             this.shouldshow++;
             this.cdRef.detectChanges();
@@ -119,8 +119,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         if (this.viewType !== this.VIEW_TYPE.DOCUMENT) {
             // TODO change the default configuration this.config.pagination = { .... };
         }
-        
-        this.cdRef.detectChanges();
     }
 
 

@@ -80,7 +80,7 @@
     "ng2Config": {
        "assets": [{
                     "glob": "*.js",
-                    "input": "node_modules/@servoy/smartdocumenteditor/src/assets/lib/translations",
+                    "input": "node_modules/@servoy/smartdocumenteditor/assets/lib/translations",
                     "output": "/locales/smartdocumenteditor"
               }]
     },
