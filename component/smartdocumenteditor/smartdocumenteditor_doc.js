@@ -1,3 +1,79 @@
+var config;
+
+var prePreviewData;
+
+var dataProviderID;
+
+/**
+ * Configure toolbar items
+ */
+var toolbarItems;
+
+var overWriteTabForEditor;
+
+/**
+ * Editor's height to be set in a responsive form. When responsiveHeight is set to 0, the editor will use 100% height of the parent container. When value is set to -1 it will be based on the content.
+ */
+var responsiveHeight;
+
+/**
+ * Editor's min height. It's none by default. So when you want the height to be resposive and would like to have a min height for the editor, set responsiveHeight as 0 and this property with the value that fits your needs.
+ */
+var minHeight;
+
+var viewType;
+
+var showInspector;
+
+var mentionFeeds;
+
+/**
+ * Attach a style sheet to add or overwrite content styles used by the editor. Make sure to prefix all classes with the <code>.ck-content</code> class.
+ */
+var editorStyleSheet;
+
+
+
+var handlers = {
+    /**
+     * @param {JSEvent} event
+     */
+    onActionMethodID: function() {},
+
+    /**
+     * @param {${dataproviderType}} oldValue
+     * @param {${dataproviderType}} newValue
+     * @param {JSEvent} event
+     * @returns {Boolean}
+     */
+    onDataChangeMethodID: function() {},
+
+    /**
+     * @param {JSEvent} event
+     */
+    onFocusGainedMethodID: function() {},
+
+    /**
+     * @param {JSEvent} event
+     */
+    onFocusLostMethodID: function() {},
+
+    /**
+     * @param {Object} file
+     */
+    onFileUploadedMethodID: function() {},
+
+    /**
+     */
+    onReady: function() {},
+
+    /**
+     * @param {String} errorMessage
+     * @param {String} errorStack
+     */
+    onError: function() {}
+};
+
 /**
  * (Re-)Creates the editor using the given config 
  * @example elements.%%elementName%%.create(config, onSuccess, onError);
