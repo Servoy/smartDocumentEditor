@@ -90,20 +90,19 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                 }
             }
         }
-        if (!this.config.autosave) {
-            this.config.autosave = {
-                save: editor => {
-                    return new Promise(resolve => {
-                        this.zone.run(() => {
-                            setTimeout(() => {
-                                const data = this.getEditorData();
-                                // Save data
-                                this.forceSaveData(data)
-                                resolve(data);
-                            }, 100);
-                        })
-                    });
-                }
+        
+        this.config.autosave = {
+            save: editor => {
+                return new Promise(resolve => {
+                    this.zone.run(() => {
+                        setTimeout(() => {
+                            const data = this.getEditorData();
+                            // Save data
+                            this.forceSaveData(data)
+                            resolve(data);
+                        }, 100);
+                    })
+                });
             }
         }
 
