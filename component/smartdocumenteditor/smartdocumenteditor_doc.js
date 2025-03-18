@@ -235,3 +235,68 @@ function isInPreviewMode() {
  * @example %%prefix%%%%elementName%%.requestFocus();
  */
 function requestFocus() {}
+
+var svy_types = {
+
+    toolbar: {
+
+        items : null,
+
+        shouldNotGroupWhenFull : null,
+
+    },
+
+    toolbarItem: {
+
+        name : null,
+
+        type : null,
+
+        label : null,
+
+        withText : null,
+
+        keystroke : null,
+
+        styleClass : null,
+
+        isEnabled : null,
+
+        withTooltip : null,
+
+        tooltip : null,
+
+        iconStyleClass : null,
+
+        onClick : null,
+
+        valueList : null,
+
+        ignoreReadOnly : null,
+
+    },
+
+    mentionFeed: {
+
+        marker : null,
+
+        valueList : null,
+
+        feedItems : null,
+
+        minimumCharacters : null,
+
+        itemEditable : null,
+
+    },
+
+    mentionFeedItem: {
+
+        displayValue : null,
+
+        realValue : null,
+
+        format : null,
+
+    }
+}
