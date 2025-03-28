@@ -1,3 +1,10 @@
+/**
+ * A Servoy Extra Component that provides a rich document editor with advanced formatting capabilities.
+ */
+
+/**
+ * Bound data provider identifier for the document content.
+ */
 var dataProviderID;
 
 /**
@@ -5,12 +12,24 @@ var dataProviderID;
  */
 var toolbarItems;
 
+/**
+ * Flag indicating whether the toolbar is visible.
+ */
 var showToolbar;
 
+/**
+ * Flag indicating whether to overwrite the default tab behavior for the editor.
+ */
 var overWriteTabForEditor;
 
+/**
+ * CSS style classes applied to the editor component.
+ */
 var styleClass;
 
+/**
+ * Flag indicating whether the editor content is editable.
+ */
 var editable;
 
 /**
@@ -23,14 +42,29 @@ var responsiveHeight;
  */
 var minHeight;
 
+/**
+ * Flag indicating whether the editor is visible.
+ */
 var visible;
 
+/**
+ * The view type of the editor. Possible values are "WEB" or "DOCUMENT".
+ */
 var viewType;
 
+/**
+ * The language used in the editor.
+ */
 var language;
 
+/**
+ * Flag indicating whether the inspector is shown. (Deprecated in later versions.)
+ */
 var showInspector;
 
+/**
+ * Array of mention feed configurations for the editor. Each mention feed defines a marker and associated feed items for quick insertion.
+ */
 var mentionFeeds;
 
 /**
@@ -41,39 +75,55 @@ var editorStyleSheet;
 
 var handlers = {
     /**
-     * @param {JSEvent} event
+     * Fired when an action is triggered in the editor.
+     *
+     * @param {JSEvent} event The event object associated with the action.
      */
     onActionMethodID: function() {},
 
     /**
-     * @param {${dataproviderType}} oldValue
-     * @param {${dataproviderType}} newValue
-     * @param {JSEvent} event
+     * Fired when the editor's data changes.
      *
-     * @returns {Boolean}
+     * @param {dataproviderType} oldValue The previous document content.
+     * @param {dataproviderType} newValue The new document content.
+     * @param {JSEvent} event The event object associated with the data change.
+     *
+     * @return {Boolean} True if the new content is accepted, false otherwise.
      */
     onDataChangeMethodID: function() {},
 
+
     /**
-     * @param {JSEvent} event
+     * Fired when the editor gains focus.
+     *
+     * @param {JSEvent} event The event object associated with the focus gain.
      */
     onFocusGainedMethodID: function() {},
 
     /**
-     * @param {JSEvent} event
+     * Fired when the editor loses focus.
+     *
+     * @param {JSEvent} event The event object associated with the focus loss.
      */
     onFocusLostMethodID: function() {},
 
     /**
-     * @param {Object} file
+     * Fired when a file is uploaded through the editor.
+     *
+     * @param {Object} file The file object that was uploaded.
      */
     onFileUploadedMethodID: function() {},
 
+    /**
+     * Fired when the editor is fully initialized and ready.
+     */
     onReady: function() {},
 
     /**
-     * @param {String} errorMessage
-     * @param {String} errorStack
+     * Fired when an error occurs in the editor.
+     *
+     * @param {String} errorMessage The error message.
+     * @param {String} errorStack The error stack trace.
      */
     onError: function() {}
 };
@@ -238,65 +288,116 @@ function requestFocus() {}
 
 var svy_types = {
 
+    /**
+     * Represents the toolbar configuration for the editor.
+     */
     toolbar: {
-
-        items : null,
-
-        shouldNotGroupWhenFull : null,
-
+        /**
+         * Array of toolbar items.
+         */
+        items: null,
+        /**
+         * Flag indicating whether toolbar items should not be grouped when the toolbar is full.
+         */
+        shouldNotGroupWhenFull: null,
     },
-
+    /**
+     * Represents a single toolbar item in the editor.
+     */
     toolbarItem: {
-
-        name : null,
-
-        type : null,
-
-        label : null,
-
-        withText : null,
-
-        keystroke : null,
-
-        styleClass : null,
-
-        isEnabled : null,
-
-        withTooltip : null,
-
-        tooltip : null,
-
-        iconStyleClass : null,
-
-        onClick : null,
-
-        valueList : null,
-
-        ignoreReadOnly : null,
-
+        /**
+         * Unique name of the toolbar item.
+         */
+        name: null,
+        /**
+         * The type of the toolbar item (e.g. bold, italic, fontSize, etc.).
+         */
+        type: null,
+        /**
+         * Label text for the toolbar item.
+         */
+        label: null,
+        /**
+         * When true, the toolbar item displays both an icon and text.
+         */
+        withText: null,
+        /**
+         * The keystroke associated with the toolbar item.
+         */
+        keystroke: null,
+        /**
+         * CSS style classes applied to the toolbar item.
+         */
+        styleClass: null,
+        /**
+         * Flag indicating whether the toolbar item is enabled.
+         */
+        isEnabled: null,
+        /**
+         * When true, the toolbar item shows a tooltip.
+         */
+        withTooltip: null,
+        /**
+         * Tooltip text for the toolbar item.
+         */
+        tooltip: null,
+        /**
+         * CSS style classes applied to the toolbar item's icon.
+         */
+        iconStyleClass: null,
+        /**
+         * Function to be called when the toolbar item is clicked.
+         */
+        onClick: null,
+        /**
+         * Value list providing options for the toolbar item.
+         */
+        valueList: null,
+        /**
+         * When true, the toolbar item ignores the editor's readOnly state.
+         */
+        ignoreReadOnly: null,
     },
-
+    /**
+     * Represents a mention feed configuration for the editor.
+     */
     mentionFeed: {
-
-        marker : null,
-
-        valueList : null,
-
-        feedItems : null,
-
-        minimumCharacters : null,
-
-        itemEditable : null,
-
+        /**
+         * Marker used to trigger the mention feed (e.g. '@' or '#').
+         */
+        marker: null,
+        /**
+         * Identifier for the value list providing options for the mention feed.
+         */
+        valueList: null,
+        /**
+         * Array of mention feed items.
+         */
+        feedItems: null,
+        /**
+         * Minimum number of characters required before triggering the mention feed.
+         */
+        minimumCharacters: null,
+        /**
+         * Flag indicating whether items in the mention feed are editable.
+         */
+        itemEditable: null,
     },
-
+    /**
+     * Represents an individual mention feed item.
+     */
     mentionFeedItem: {
-
-        displayValue : null,
-
-        realValue : null,
-
-        format : null,
-
+        /**
+         * The display value of the mention feed item.
+         */
+        displayValue: null,
+        /**
+         * The actual value associated with the mention feed item.
+         */
+        realValue: null,
+        /**
+         * Format string for displaying the mention feed item.
+         */
+        format: null,
     }
 }
