@@ -262,6 +262,8 @@
                     "link",
                     "pageBreak",
                     "blockquote",
+                    "code",
+                    "codeBlock",
                     "imageUpload",
                     "imageInsert",
                     "insertTable",

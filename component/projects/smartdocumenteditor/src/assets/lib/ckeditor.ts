@@ -20,6 +20,7 @@ import { Strikethrough } from '@ckeditor/ckeditor5-basic-styles';
 import { Underline } from '@ckeditor/ckeditor5-basic-styles';
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote';
 import { Code } from '@ckeditor/ckeditor5-basic-styles';
+import { CodeBlock } from '@ckeditor/ckeditor5-code-block';
 import { Subscript } from '@ckeditor/ckeditor5-basic-styles';
 import { Superscript } from '@ckeditor/ckeditor5-basic-styles';
 import { CKFinder } from '@ckeditor/ckeditor5-ckfinder';
@@ -119,6 +120,7 @@ DecoupledEditor.builtinPlugins = [
     Underline,
     BlockQuote,
     Code,
+    CodeBlock,
     Subscript,
     Superscript,
     CKFinder,

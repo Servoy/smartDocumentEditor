@@ -71,6 +71,18 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         this.config.toolbar = {
             items: this.getToolbarItems()
         }
+        this.config.codeBlock = {
+            languages: [
+                { language: 'plaintext', label: 'Plain text' , class: '' }, // The default language.
+                { language: 'css', label: 'CSS' , class: 'css' },
+                { language: 'html', label: 'HTML' , class: 'html' },
+                { language: 'java', label: 'Java' , class: 'java' },
+                { language: 'javascript', label: 'JavaScript', class: 'javascript' },
+                { language: 'typescript', label: 'TypeScript' , class: 'typescript' },
+                { language: 'xml', label: 'XML' , class: 'xml' },
+                { language: 'sql', label: 'SQL' , class: 'sql' }
+            ]
+        }
 
         //make sure custom toolbar items are created
         //We should always load them, else the valuelists don't get an update to show the correct values
@@ -648,6 +660,7 @@ export class EditorConfigExtended implements EditorConfig {
     autosave?: { save: (editor: DecoupledEditor) => Promise<string>; }
     svyToolbarItems?: Array<any>;
     mention?: { feeds: Array<any>; }
+    codeBlock?: { languages: Array<{ language: string, label: string, class: string }> };
 }
 export class ToolbarItem extends BaseCustomObject {
     name: string;
