@@ -42,7 +42,6 @@
         "@ckeditor/ckeditor5-utils",
         "@ckeditor/ckeditor5-watchdog",
         "@ckeditor/ckeditor5-code-block",
-        "ckeditor5-premium-features",
         "juice"
     ]
 }
