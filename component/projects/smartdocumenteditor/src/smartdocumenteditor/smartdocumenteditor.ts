@@ -473,6 +473,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             if (locale.toLowerCase() == 'en-us') {
                 return 'en';
             }
+            if(!['zh-cn', 'sr-latn', 'pt-br', 'en-gb', 'en-au', 'de-ch'].includes(locale.toLowerCase())) {
+                locale = locale.split('-')[0].toLowerCase();
+            }
+
             return locale;
         }
         return 'en';
