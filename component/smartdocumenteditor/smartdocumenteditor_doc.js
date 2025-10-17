@@ -1,4 +1,4 @@
-/**
+/*
  * A Servoy Extra Component that provides a rich document editor with advanced formatting capabilities.
  */
 
