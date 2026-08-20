@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, input, output, inject, ChangeDetectionStrategy, DOCUMENT, NgZone } from '@angular/core';
+import { Component, SimpleChanges, input, output, inject, signal, ChangeDetectionStrategy, DOCUMENT } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -15,8 +15,8 @@ import DecoupledEditor from '../assets/lib/ckeditor';
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     public Editor = DecoupledEditor;
-    public shouldshow = 0;
-    public configChanging = false;
+    public shouldshow = signal(0);
+    public configChanging = signal(false);
     private getFocusWhenReady = false;
     private editorInstance!: DecoupledEditor;
     private previewHTMLHTML!: string;
@@ -26,7 +26,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     private readonly document = inject<Document>(DOCUMENT);
     private readonly servoyService = inject(ServoyPublicService);
-    private readonly zone = inject(NgZone);
 
     VIEW_TYPE = {
         WEB: 'WEB',
@@ -64,8 +63,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         super();
         import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
-            this.shouldshow++;
-            this.detectChanges();
+            this.shouldshow.update(v => v + 1);
         });
     }
 
@@ -111,13 +109,11 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         cfg.autosave = {
             save: (_editor: any) => {
                 return new Promise<string>(resolve => {
-                    this.zone.run(() => {
-                        setTimeout(() => {
-                            const data = this.getEditorData();
-                            this.forceSaveData(data)
-                            resolve(data);
-                        }, 100);
-                    })
+                    setTimeout(() => {
+                        const data = this.getEditorData();
+                        this.forceSaveData(data)
+                        resolve(data);
+                    }, 100);
                 });
             }
         }
@@ -244,9 +240,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     refresh() {
-        this.configChanging = true;
-        this.detectChanges();
-        this.configChanging = false;
+        this.configChanging.set(true);
+        setTimeout(() => this.configChanging.set(false));
     }
 
     public toggleToolbar() {
