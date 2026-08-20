@@ -62,7 +62,7 @@ import { SvyToolbarItem } from '../../plugins/toolbar/svy-toolbar-item';
 import juice from 'juice';
 
 export default class DecoupledEditor extends DecoupledEditorBase {
-    static getInlineStyle(data, style) {
+    static getInlineStyle(data: any, style: any) {
         return juice.inlineContent(data, style || this.getCssStyles(), { preserveMediaQueries: false, preserveImportant: true, preserveFontFaces: false });
     }
 
@@ -82,7 +82,7 @@ export default class DecoupledEditor extends DecoupledEditorBase {
             filterByNames.push('smartdocumenteditor.css');
         }
         for (const sheet of document.styleSheets) {
-            if (!filterByNames.length || (sheet.href && filterByNames.includes(sheet.href.split('/').pop().split('?').shift()))) {
+            if (!filterByNames.length || (sheet.href && filterByNames.includes(sheet.href.split('/').pop()!.split('?').shift()!))) {
                 let rules = sheet.cssRules ? sheet.cssRules : sheet.rules;
                 if (rules) {
                     css.push('\n/* Stylesheet : ' + (sheet.href || '[inline styles]') + ' */');

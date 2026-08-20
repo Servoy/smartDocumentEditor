@@ -3,6 +3,7 @@
   "compilerOptions": {
     "paths": {},
     "baseUrl": "./",
+    "ignoreDeprecations": "6.0",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
@@ -11,16 +12,11 @@
     "declaration": false,
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "allowJs": true,
     "target": "ES2022",
     "module": "es2020",
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ],
     "useDefineForClassFields": false
   },
   "angularCompilerOptions": {

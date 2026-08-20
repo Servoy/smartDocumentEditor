@@ -10,7 +10,7 @@ import { Collection } from '@ckeditor/ckeditor5-utils';
 
 export class SvyToolbarItemUi extends Plugin {
 
-    private svyToolbarItems: View[];
+    private svyToolbarItems!: View[];
 
     /**
      * @inheritDoc
@@ -116,11 +116,11 @@ export class SvyToolbarItemUi extends Plugin {
         }
     }
 
-    getDropdownItemsDefinitions(valueList): Collection<ListDropdownItemDefinition> {
+    getDropdownItemsDefinitions(valueList: any): Collection<ListDropdownItemDefinition> {
         const itemDefinitions = new Collection<ListDropdownItemDefinition>();
 
         if (valueList && valueList.length) {
-            valueList.forEach(element => {
+            valueList.forEach((element: any) => {
                 const definition: ListDropdownItemDefinition = {
                     type: 'button',
                     model: new ViewModel({
@@ -139,7 +139,7 @@ export class SvyToolbarItemUi extends Plugin {
         return itemDefinitions;
     }
 
-    _createIconView(iconClass) {
+    _createIconView(iconClass: any) {
         const iconView = new View();
         iconView.setTemplate({
             tag: 'span',
@@ -158,7 +158,7 @@ export class SvyToolbarItemUi extends Plugin {
      * @param value new enabled state
      * @private
      */
-    enableButton(button, value) {
+    enableButton(button: any, value: any) {
         if (button.ignoreReadOnly !== true) {
             button.isEnabled = !this.editor.isReadOnly && value;
         }

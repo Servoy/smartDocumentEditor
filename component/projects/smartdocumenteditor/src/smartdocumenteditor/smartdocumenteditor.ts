@@ -1,14 +1,16 @@
-import { Component, SimpleChanges, Input, Renderer2, ChangeDetectorRef, ViewChild, Output, EventEmitter, Inject, ElementRef, NgZone } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, SimpleChanges, input, output, inject, ChangeDetectionStrategy, DOCUMENT, NgZone } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
-import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { EditorConfig } from '@ckeditor/ckeditor5-core';
 import DecoupledEditor from '../assets/lib/ckeditor';
 
 @Component({
     selector: 'smartdocumenteditor-smartdocumenteditor',
     templateUrl: './smartdocumenteditor.html',
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgStyle, CKEditorModule]
 })
 export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
@@ -16,64 +18,70 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public shouldshow = 0;
     public configChanging = false;
     private getFocusWhenReady = false;
-    private editorInstance: DecoupledEditor;
-    private previewHTMLHTML: string;
-    private previewHTMLreadOnly: boolean;
+    private editorInstance!: DecoupledEditor;
+    private previewHTMLHTML!: string;
+    private previewHTMLreadOnly!: boolean;
+    private _prePreviewData!: string;
+    _cfg!: EditorConfigExtended;
 
-    @ViewChild('element', { static: true }) elementRef: ElementRef;
+    private readonly document = inject<Document>(DOCUMENT);
+    private readonly servoyService = inject(ServoyPublicService);
+    private readonly zone = inject(NgZone);
 
     VIEW_TYPE = {
         WEB: 'WEB',
         DOCUMENT: 'DOCUMENT'
     };
 
-    @Input() dataProviderID: any;
-    @Input() toolbarItems: Array<ToolbarItem>;
-    @Input() showToolbar: boolean;
-    @Input() overWriteTabForEditor: boolean;
-    @Input() styleClass: string;
-    @Input() editable: boolean;
-    @Input() responsiveHeight: number;
-    @Input() visible: boolean;
-    @Input() viewType: string;
-    @Input() language: string;
-    @Input() showInspector: boolean;
-    @Input() mentionFeeds: Array<MentionFeed>;
-    @Input() editorStyleSheet: string;
-    @Input() config: EditorConfigExtended;
-    @Input() prePreviewData: string;
-    @Input() minHeight: number;
+    readonly dataProviderID = input<any>(undefined as any);
+    readonly toolbarItems = input<Array<ToolbarItem>>(undefined as any);
+    readonly showToolbar = input<boolean>(undefined as any);
+    readonly overWriteTabForEditor = input<boolean>(undefined as any);
+    readonly styleClass = input<string>(undefined as any);
+    readonly editable = input<boolean>(undefined as any);
+    readonly responsiveHeight = input<number>(undefined as any);
+    readonly visible = input<boolean>(undefined as any);
+    readonly viewType = input<string>(undefined as any);
+    readonly language = input<string>(undefined as any);
+    readonly showInspector = input<boolean>(undefined as any);
+    readonly mentionFeeds = input<Array<MentionFeed>>(undefined as any);
+    readonly editorStyleSheet = input<string>(undefined as any);
+    readonly config = input<EditorConfigExtended>(undefined as any);
+    readonly prePreviewData = input<string>(undefined as any);
+    readonly minHeight = input<number>(undefined as any);
 
-    @Input() onActionMethodID: (e: JSEvent) => void;
-    @Input() onFocusGainedMethodID: (e: JSEvent) => void;
-    @Input() onFocusLostMethodID: (e: JSEvent) => void;
-    @Input() onFileUploadedMethodID: () => void;
-    @Input() onReady: () => void;
-    @Input() onError: () => void;
-    @Input() onDataChangeMethodID: () => void;
+    readonly onActionMethodID = input<(e: JSEvent) => void>(undefined as any);
+    readonly onFocusGainedMethodID = input<(e: JSEvent) => void>(undefined as any);
+    readonly onFocusLostMethodID = input<(e: JSEvent) => void>(undefined as any);
+    readonly onFileUploadedMethodID = input<() => void>(undefined as any);
+    readonly onReady = input<() => void>(undefined as any);
+    readonly onError = input<() => void>(undefined as any);
+    readonly onDataChangeMethodID = input<() => void>(undefined as any);
 
-    @Output() dataProviderIDChange = new EventEmitter();
+    readonly dataProviderIDChange = output<any>();
 
-    constructor(renderer: Renderer2, cdRef: ChangeDetectorRef, @Inject(DOCUMENT) private document: Document, private servoyService: ServoyPublicService, private zone: NgZone) {
-        super(renderer, cdRef);
+    constructor() {
+        super();
         import('../assets/lib/ckeditor').then((module) => {
             this.Editor = module.default as typeof DecoupledEditor;
             this.shouldshow++;
-            this.cdRef.detectChanges();
+            this.detectChanges();
         });
     }
 
     svyOnInit() {
         super.svyOnInit();
-        if (!this.config) {
-            this.config = this.Editor.defaultConfig as EditorConfigExtended;
+        let cfg = this.config();
+        if (!cfg) {
+            cfg = this.Editor.defaultConfig as EditorConfigExtended;
         }
-        this.config.toolbar = {
+        this._cfg = cfg;
+        cfg.toolbar = {
             items: this.getToolbarItems()
         }
-        this.config.codeBlock = {
+        cfg.codeBlock = {
             languages: [
-                { language: 'plaintext', label: 'Plain text' , class: '' }, // The default language.
+                { language: 'plaintext', label: 'Plain text' , class: '' },
                 { language: 'css', label: 'CSS' , class: 'css' },
                 { language: 'html', label: 'HTML' , class: 'html' },
                 { language: 'java', label: 'Java' , class: 'java' },
@@ -84,32 +92,28 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             ]
         }
 
-        //make sure custom toolbar items are created
-        //We should always load them, else the valuelists don't get an update to show the correct values
-        this.config.svyToolbarItems = this.getSvyToolbarItems();
+        cfg.svyToolbarItems = this.getSvyToolbarItems() || undefined;
 
-        if (this.mentionFeeds && this.mentionFeeds.length) {
-            //add placeholder mention feed
-            this.config.mention = {
+        if (this.mentionFeeds() && this.mentionFeeds().length) {
+            cfg.mention = {
                 feeds: this.getFeeds()
             }
 
-            if (!this.config.hasOwnProperty('extraPlugins') || this.config.extraPlugins.indexOf(SvyMentionConverter) === -1) {
-                if (this.config.hasOwnProperty('extraPlugins')) {
-                    this.config.extraPlugins.push(SvyMentionConverter);
+            if (!cfg.hasOwnProperty('extraPlugins') || cfg.extraPlugins!.indexOf(SvyMentionConverter) === -1) {
+                if (cfg.hasOwnProperty('extraPlugins')) {
+                    cfg.extraPlugins!.push(SvyMentionConverter);
                 } else {
-                    this.config.extraPlugins = [SvyMentionConverter];
+                    cfg.extraPlugins = [SvyMentionConverter];
                 }
             }
         }
-        
-        this.config.autosave = {
-            save: editor => {
-                return new Promise(resolve => {
+
+        cfg.autosave = {
+            save: (_editor: any) => {
+                return new Promise<string>(resolve => {
                     this.zone.run(() => {
                         setTimeout(() => {
                             const data = this.getEditorData();
-                            // Save data
                             this.forceSaveData(data)
                             resolve(data);
                         }, 100);
@@ -118,18 +122,15 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             }
         }
 
-        if (this.config.language !== this.getCurrentLanguage()) {
+        if (cfg.language !== this.getCurrentLanguage()) {
             const userLanguage = this.getCurrentLanguage();
             console.debug('SmartDocument Editor setting language to: ' + userLanguage);
-            this.config.language = userLanguage;
+            cfg.language = userLanguage;
         }
 
         this.importLocale();
 
-        // setting diffrent pagination for document view
-        // default configuration is set in the ckeditor component
-        if (this.viewType !== this.VIEW_TYPE.DOCUMENT) {
-            // TODO change the default configuration this.config.pagination = { .... };
+        if (this.viewType() !== this.VIEW_TYPE.DOCUMENT) {
         }
     }
 
@@ -167,40 +168,39 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                             }
                         }
                         break;
-                    case "responsiveHeight":
-                        if (!this.servoyApi.isInAbsoluteLayout()) {
-                            if (this.responsiveHeight) {
-                                this.renderer.setStyle(this.getNativeElement(), 'height', this.responsiveHeight + 'px');
+                    case 'responsiveHeight':
+                        if (!this.servoyApi().isInAbsoluteLayout()) {
+                            if (this.responsiveHeight()) {
+                                this.renderer.setStyle(this.getNativeElement(), 'height', this.responsiveHeight() + 'px');
                             } else {
-                                // when responsive height is 0 or undefined, use 100% of the parent container.
                                 this.renderer.setStyle(this.getNativeElement(), 'height', '100%');
                             }
                         }
                         break;
                     case 'dataProviderID':
-                        if (this.editorInstance && this.dataProviderID != this.editorInstance.getData()) {
+                        if (this.editorInstance && this.dataProviderID() != this.editorInstance.getData()) {
                             console.info('Setting new data from broadcast')
-                            this.editorInstance.setData(this.dataProviderID || '');
+                            this.editorInstance.setData(this.dataProviderID() || '');
                         }
                         break;
                     case 'editorStyleSheet':
-                        this.document.head.removeAttribute("[customSmartDocumentEditor]")
+                        this.document.head.removeAttribute('[customSmartDocumentEditor]')
 
-                        if (this.editorStyleSheet) {
-                            let url = this.editorStyleSheet.split('?').shift();
-                            let additions = this.editorStyleSheet.split('?').pop().split('&').filter((item) => {
+                        if (this.editorStyleSheet()) {
+                            let url = this.editorStyleSheet().split('?').shift();
+                            const additions = this.editorStyleSheet().split('?').pop()!.split('&').filter((item: string) => {
                                 return item.startsWith('clientnr');
                             });
                             if (additions.length) {
                                 url += '?' + additions.join('&');
                             }
 
-                            let head = this.document.getElementsByTagName('head')[0];
-                            let cssHref = this.document.createElement('link');
-                            cssHref.setAttribute("rel", "stylesheet");
-                            cssHref.setAttribute("type", "text/css");
-                            cssHref.setAttribute("href", url);
-                            cssHref.setAttribute("customSmartDocumentEditor", "");
+                            const head = this.document.getElementsByTagName('head')[0];
+                            const cssHref = this.document.createElement('link');
+                            cssHref.setAttribute('rel', 'stylesheet');
+                            cssHref.setAttribute('type', 'text/css');
+                            cssHref.setAttribute('href', url!);
+                            cssHref.setAttribute('customSmartDocumentEditor', '');
                             head.appendChild(cssHref);
                         }
                         break;
@@ -210,21 +210,20 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                         }
                         break;
                     case 'config':
-                        //console.debug("Configuration change detected, new config: " + JSON.stringify(this.config));
                         this.refresh();
                         break;
                     case 'mentionFeeds':
-                        if (this.config && this.mentionFeeds && this.mentionFeeds.length) {
-                            //add placeholder mention feed
-                            this.config.mention = {
+                        if (this.config() && this.mentionFeeds() && this.mentionFeeds().length) {
+                            const cfg = this.config();
+                            cfg.mention = {
                                 feeds: this.getFeeds()
                             }
 
-                            if (!this.config.hasOwnProperty('extraPlugins') || this.config.extraPlugins.indexOf(SvyMentionConverter) === -1) {
-                                if (this.config.hasOwnProperty('extraPlugins')) {
-                                    this.config.extraPlugins.push(SvyMentionConverter);
+                            if (!cfg.hasOwnProperty('extraPlugins') || cfg.extraPlugins!.indexOf(SvyMentionConverter) === -1) {
+                                if (cfg.hasOwnProperty('extraPlugins')) {
+                                    cfg.extraPlugins!.push(SvyMentionConverter);
                                 } else {
-                                    this.config.extraPlugins = [SvyMentionConverter];
+                                    cfg.extraPlugins = [SvyMentionConverter];
                                 }
                             }
                             this.refresh();
@@ -243,60 +242,57 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             });
         }
     }
-    
+
     refresh() {
-        // refresh the editor
         this.configChanging = true;
-        this.cdRef.detectChanges();
+        this.detectChanges();
         this.configChanging = false;
     }
 
     public toggleToolbar() {
         const toolbar = this.getNativeElement().querySelector('#toolbar-container');
-        if (toolbar.firstChild) {
-            toolbar.removeChild(toolbar.firstChild);
+        if (toolbar!.firstChild) {
+            toolbar!.removeChild(toolbar!.firstChild);
         }
 
-        if (this.showToolbar) {
-            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
+        if (this.showToolbar()) {
+            toolbar!.appendChild(this.editorInstance.ui.view.toolbar.element!);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
     }
 
     public onEditorReady(editor: DecoupledEditor): void {
         this.editorInstance = editor;
-        this.editorInstance.setData(this.dataProviderID || '');
+        this.editorInstance.setData(this.dataProviderID() || '');
         const view = this.editorInstance.editing.view;
         const viewDocument = view.document;
 
-        if (this.showInspector) {
+        if (this.showInspector()) {
             console.log('Attaching inspector is removed/disabled in SmartDocumentEditor starting from version 2024.12.0');
         }
 
-        // Set a custom container for the toolbar
-        if (this.showToolbar) {
+        if (this.showToolbar()) {
             const toolbar = this.getNativeElement().querySelector('#toolbar-container');
-            if (toolbar.firstChild)
-                toolbar.removeChild(toolbar.firstChild);
-            toolbar.appendChild(this.editorInstance.ui.view.toolbar.element);
+            if (toolbar!.firstChild)
+                toolbar!.removeChild(toolbar!.firstChild);
+            toolbar!.appendChild(this.editorInstance.ui.view.toolbar.element!);
             this.getNativeElement().querySelectorAll('.ck-toolbar')[0].classList.add('ck-reset_all');
         }
 
-        (this.editorInstance.plugins.get('FileRepository') as any).createUploadAdapter = (loader) => {
-            return new ServoyUploadAdapter(loader, this.servoyService.generateUploadUrl(this.servoyApi.getFormName(), this.name, 'onFileUploadedMethodID'), this.onFileUploadedMethodID);
+        (this.editorInstance.plugins.get('FileRepository') as any).createUploadAdapter = (loader: any) => {
+            return new ServoyUploadAdapter(loader, this.servoyService.generateUploadUrl(this.servoyApi().getFormName(), this.name(), 'onFileUploadedMethodID'), this.onFileUploadedMethodID());
         };
 
-        // Disable the plugin so that no pagination is use are visible.
-        if (this.viewType != this.VIEW_TYPE.DOCUMENT) {
+        if (this.viewType() != this.VIEW_TYPE.DOCUMENT) {
             (this.editorInstance.plugins.get('Pagination') as any).isEnabled = false;
         }
 
-        if (this.overWriteTabForEditor) {
-            viewDocument.on('keydown', (evt, data) => {
+        if (this.overWriteTabForEditor()) {
+            viewDocument.on('keydown', (evt: any, data: any) => {
                 if ((data.keyCode == 9) && viewDocument.isFocused) {
-                    this.editorInstance.execute('input', { text: "     " });
+                    this.editorInstance.execute('input', { text: '     ' });
 
-                    evt.stop(); // Prevent executing the default handler.
+                    evt.stop();
                     data.preventDefault();
                     view.scrollToTheSelection();
                 }
@@ -306,41 +302,41 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
             this.getFocusWhenReady = false;
             this.editorInstance.focus();
         }
-        if (this.onFocusGainedMethodID || this.onFocusLostMethodID) {
-            this.editorInstance.ui.focusTracker.on('change:isFocused', (evt, data, isFocused) => {
+        if (this.onFocusGainedMethodID() || this.onFocusLostMethodID()) {
+            this.editorInstance.ui.focusTracker.on('change:isFocused', (_evt: any, _data: any, isFocused: boolean) => {
                 if (isFocused) {
-                    if (this.onFocusGainedMethodID) {
-                        this.onFocusGainedMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusGained'));
+                    if (this.onFocusGainedMethodID()) {
+                        this.onFocusGainedMethodID()(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusGained'));
                     }
                 } else {
-                    if (this.onFocusLostMethodID) {
-                        this.onFocusLostMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusLost'));
+                    if (this.onFocusLostMethodID()) {
+                        this.onFocusLostMethodID()(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'focusLost'));
                     }
                     this.forceSaveData(this.getEditorData());
                 }
             });
         }
 
-        if (this.onActionMethodID) {
-            this.editorInstance.listenTo(this.editorInstance.editing.view.document, 'click', (evt) => {
-                if (!this.editable) {
-                    this.onActionMethodID(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'onAction'));
+        if (this.onActionMethodID()) {
+            this.editorInstance.listenTo(this.editorInstance.editing.view.document, 'click', (_evt: any) => {
+                if (!this.editable()) {
+                    this.onActionMethodID()(this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'onAction'));
                 }
             })
         }
 
-        if (this.editable) {
+        if (this.editable()) {
             this.editorInstance.disableReadOnlyMode('readonly');
         } else {
             this.editorInstance.enableReadOnlyMode('readonly');
         }
         if (this.previewHTMLHTML) {
             this.executePreviewHTML(this.previewHTMLHTML, this.previewHTMLreadOnly);
-            this.previewHTMLHTML = null;
+            this.previewHTMLHTML = null!;
         }
     }
 
-    svyMentionRenderer(item) {
+    svyMentionRenderer(item: any) {
         const itemElement = document.createElement('span');
         itemElement.classList.add('svy-mention');
         itemElement.id = 'mention-id-' + item.id;
@@ -350,12 +346,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     getFeeds() {
-        var result = [];
-        //add other mentions
-        if (this.mentionFeeds) {
-            for (let i = 0; i < this.mentionFeeds.length; i++) {
-                const feed = this.mentionFeeds[i];
-                //Skip feed parsing.. if there is nothing to parse;
+        const result: any[] = [];
+        if (this.mentionFeeds()) {
+            for (let i = 0; i < this.mentionFeeds().length; i++) {
+                const feed = this.mentionFeeds()[i];
                 if (!feed.valueList && !feed.feedItems) {
                     continue;
                 }
@@ -368,19 +362,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     {
                         marker: feed.marker,
                         minimumCharacters: feed.minimumCharacters || 0,
-                        feed: function(queryText) {
+                        feed: function(queryText: any) {
                             if (feed.valueList) {
                                 return new Promise(resolve => {
                                     const list = feed.valueList
-                                        // Filter out the full list of all items to only those matching the query text.
-                                        .filter((item) => {
+                                        .filter((item: any) => {
                                             const searchString = queryText.toLowerCase();
                                             return item.displayValue.toString().toLowerCase().includes(searchString);
                                         })
-                                        // Return 10 items max - needed for generic queries when the list may contain hundreds of elements.
                                         .slice(0, 10)
-                                        //Map /Convert default valuelist names to matching object keys for tags
-                                        .map((item) => {
+                                        .map((item: any) => {
                                             return {
                                                 name: item.displayValue.toString(),
                                                 id: feed.marker.toString() + item.displayValue.toString(),
@@ -392,14 +383,12 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                     resolve(list);
                                 });
                             } else if (feed.feedItems) {
-
-                                // Filter the feedItems matching the searchString
-                                let matchedItems = feed.feedItems.filter((entry) => {
+                                const matchedItems = feed.feedItems.filter((entry: any) => {
                                     const searchString = queryText.toLowerCase();
                                     return entry.displayValue.toString().toLowerCase().includes(searchString);
                                 });
 
-                                return matchedItems.map((entry) => {
+                                return matchedItems.map((entry: any) => {
                                     return {
                                         name: entry.displayValue.toString(),
                                         id: feed.marker.toString() + entry.displayValue.toString(),
@@ -421,10 +410,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     getSvyToolbarItems() {
-        // Style of icon styleClass is overriden by the ck-reset class; causing issues in showing font icons. This is an known issue of CKEditor
-        // https://stackoverflow.com/questions/65605215/prevent-from-being-added-ck-reset-classes-in-ckeditor-5
-        if (this.toolbarItems && this.toolbarItems.length > 0) {
-            return this.toolbarItems.filter((item) => {
+        if (this.toolbarItems() && this.toolbarItems().length > 0) {
+            return this.toolbarItems().filter((item) => {
                 return item.type === 'servoyToolbarItem';
             }).map((item) => {
                 return {
@@ -436,8 +423,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                     iconStyleClass: item.iconStyleClass || null,
                     ignoreReadOnly: item.ignoreReadOnly || false,
                     valueList: item.valueList,
-                    onClick: item.onClick ? (buttonView, dropDownValue) => {
-                        let jsevent = this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'action');
+                    onClick: item.onClick ? (buttonView: any, dropDownValue: any) => {
+                        const jsevent = this.servoyService.createJSEvent({ target: this.getNativeElement() } as EventLike, 'action');
                         item.onClick(jsevent, item.name, dropDownValue || null)
                     } : null
                 }
@@ -447,8 +434,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     getToolbarItems(): Array<string> {
-        if (this.toolbarItems && this.toolbarItems.length > 0) {
-            return this.toolbarItems.map((item) => {
+        if (this.toolbarItems() && this.toolbarItems().length > 0) {
+            return this.toolbarItems().map((item) => {
                 if (item.type === 'separator') {
                     return '|'
                 } else if (item.type === 'wrappingBreakpoint') {
@@ -465,8 +452,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     getCurrentLanguage(): string {
-        if (this.language) {
-            return this.language;
+        if (this.language()) {
+            return this.language();
         }
         let locale = this.servoyService.getLocale();
         if (locale) {
@@ -482,10 +469,10 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return 'en';
     }
 
-    getEditorCSSStylesheetName(): string {
-        if (this.editorStyleSheet) {
-            let name = this.editorStyleSheet.split('?').shift();
-            name = name.split('/').pop();
+    getEditorCSSStylesheetName(): string | null {
+        if (this.editorStyleSheet()) {
+            let name = this.editorStyleSheet().split('?').shift()!;
+            name = name.split('/').pop()!;
             return name;
         } else {
             return null;
@@ -494,8 +481,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
 
     forceSaveData(data: string) {
-        if (this.editable && this.editorInstance && !this.prePreviewData) {
-            this.dataProviderID = data;
+        if (this.editable() && this.editorInstance && !this._prePreviewData) {
             this.dataProviderIDChange.emit(data);
         }
     }
@@ -509,11 +495,6 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         return null;
     }
 
-    /**
-     * Returns the data from the editor
-     * @private
-     * @returns {string}
-     */
     getEditorData() {
         if (this.editorInstance) {
             return this.editorInstance.getData({ trim: 'empty' }) || '';
@@ -523,7 +504,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     addInputAtCursor(input: string) {
         if (input) {
-            if (!this.editable || !this.editorInstance) {
+            if (!this.editable() || !this.editorInstance) {
                 return false;
             }
             this.editorInstance.execute('input', { text: input })
@@ -533,14 +514,14 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     addTagAtCursor(marker: string, tag: string): boolean {
         if (tag) {
-            if (!this.editable || !this.editorInstance) {
+            if (!this.editable() || !this.editorInstance) {
                 return false;
             }
 
-            for (let i = 0; i < this.mentionFeeds.length; i++) {
-                if (this.mentionFeeds[i].marker === marker.toString()) {
-                    const feed = this.mentionFeeds[i];
-                    const list = (feed.valueList || feed.feedItems).filter((item) => {
+            for (let i = 0; i < this.mentionFeeds().length; i++) {
+                if (this.mentionFeeds()[i].marker === marker.toString()) {
+                    const feed = this.mentionFeeds()[i];
+                    const list = (feed.valueList || feed.feedItems).filter((item: any) => {
                         return (item.realValue || item.displayValue).toString() == tag.toString();
                     })
                     if (list.length > 0) {
@@ -549,7 +530,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
                                 name: list[0].displayValue.toString(),
                                 id: feed.marker.toString() + list[0].displayValue.toString(),
                                 realValue: list[0].realValue,
-                                format: list[0]['format'] || '',
+                                format: (list[0] as any)['format'] || '',
                                 editable: feed.itemEditable || false
                             }
                         });
@@ -575,7 +556,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
         }
     }
 
-    getHTMLData(withInlineCSS: boolean, filterStylesheetName: string): string {
+    getHTMLData(withInlineCSS: boolean, filterStylesheetName: string): string | null {
         if (this.editorInstance) {
             let data = '<html><body><div class="ck-content" dir="ltr">' + this.getEditorData() + '</div></body></html>';
             if (withInlineCSS) {
@@ -588,8 +569,8 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     getCSSData(filterStylesheetName: string): string {
         if (filterStylesheetName) {
-            let cssStyleSheetFilterArray = [filterStylesheetName, this.getEditorCSSStylesheetName()];
-            let cssStyleSheetFilter = cssStyleSheetFilterArray.filter(value => {
+            const cssStyleSheetFilterArray = [filterStylesheetName, this.getEditorCSSStylesheetName()];
+            const cssStyleSheetFilter = cssStyleSheetFilterArray.filter((value): value is string => {
                 return !!value;
             })
             return this.Editor.getCssStyles(cssStyleSheetFilter);
@@ -603,7 +584,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     private executePreviewHTML(html: string, readOnly?: boolean) {
-        this.prePreviewData = this.getEditorData();
+        this._prePreviewData = this.getEditorData();
         if (!!(readOnly != undefined ? readOnly : true)) {
             this.editorInstance.enableReadOnlyMode('readonly');
         } else {
@@ -616,17 +597,16 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public previewHTML(html: string, readOnly?: boolean) {
         if (!this.editorInstance) {
             this.previewHTMLHTML = html;
-            this.previewHTMLreadOnly = readOnly;
+            this.previewHTMLreadOnly = readOnly!;
             return;
         }
-        //Force save current HTML Editor;
         this.forceSaveData(this.getEditorData());
         this.executePreviewHTML(html, readOnly);
     }
 
     public undoPreviewHTML(readOnly?: boolean) {
-        this.editorInstance.setData(this.prePreviewData);
-        this.prePreviewData = null;
+        this.editorInstance.setData(this._prePreviewData);
+        this._prePreviewData = null!;
         if (!!(readOnly != undefined ? readOnly : false)) {
             this.editorInstance.enableReadOnlyMode('readonly');
         } else {
@@ -648,63 +628,66 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     }
 
     private importLocale() {
-        var script = this.document.createElement("script");
+        const cfg = this._cfg || this.config();
+        if (!cfg || !cfg.language) {
+            return;
+        }
+        const script = this.document.createElement('script');
         const index = this.document.baseURI.indexOf('/', 8);
         const context = index > 0 ? this.document.baseURI.substring(index) : '/';
-        script.src = `${context}locales/smartdocumenteditor/${this.config.language.toLowerCase()}.js`;
+        script.src = `${context}locales/smartdocumenteditor/${cfg.language.toLowerCase()}.js`;
 
-        // append and execute script
-        this.document.documentElement.firstChild.appendChild(script);
+        this.document.documentElement.firstChild!.appendChild(script);
     }
 }
 export class EditorConfigExtended implements EditorConfig {
     toolbar?: { items: Array<string> };
     extraPlugins?: Array<any>;
     language?: string;
-    autosave?: { save: (editor: DecoupledEditor) => Promise<string>; }
+    autosave?: any;
     svyToolbarItems?: Array<any>;
     mention?: { feeds: Array<any>; }
     codeBlock?: { languages: Array<{ language: string, label: string, class: string }> };
+    [key: string]: any;
 }
 export class ToolbarItem extends BaseCustomObject {
-    name: string;
-    type: string;
-    label: string;
-    withText: boolean;
-    keystroke: string;
-    styleClass: string;
-    isEnabled: boolean;
-    withTooltip: boolean;
-    tooltip: string;
-    iconStyleClass: string;
+    name!: string;
+    type!: string;
+    label!: string;
+    withText!: boolean;
+    keystroke!: string;
+    styleClass!: string;
+    isEnabled!: boolean;
+    withTooltip!: boolean;
+    tooltip!: string;
+    iconStyleClass!: string;
     onClick: any;
-    valueList: IValuelist;
-    ignoreReadOnly: boolean;
+    valueList!: IValuelist;
+    ignoreReadOnly!: boolean;
 }
 
 export class MentionFeed extends BaseCustomObject {
-    marker: string;
-    valueList: IValuelist;
-    feedItems: Array<MentionFeedItem>;
-    minimumCharacters: number;
-    itemEditable: boolean;
+    marker!: string;
+    valueList!: IValuelist;
+    feedItems!: Array<MentionFeedItem>;
+    minimumCharacters!: number;
+    itemEditable!: boolean;
 }
 
 export class MentionFeedItem extends BaseCustomObject {
-    displayValue: string;
-    format: string;
-    realValue: string;
+    displayValue!: string;
+    format!: string;
+    realValue!: string;
 }
 
 class ServoyUploadAdapter {
     loader: any;
-    xhr: XMLHttpRequest;
-    reader: FileReader;
+    xhr!: XMLHttpRequest;
+    reader!: FileReader;
     onFileUploadedMethodID: any;
     uploadURL: string;
 
-    constructor(loader, uploadURL, onFileUploadedMethodID) {
-        // The file loader instance to use during the upload.
+    constructor(loader: any, uploadURL: any, onFileUploadedMethodID: any) {
         this.loader = loader;
         this.onFileUploadedMethodID = onFileUploadedMethodID;
         this.uploadURL = uploadURL;
@@ -712,7 +695,7 @@ class ServoyUploadAdapter {
 
     _initRequest() {
         const xhr = this.xhr = new XMLHttpRequest();
-        let uploadUrl = this._getFileUploadURL();
+        const uploadUrl = this._getFileUploadURL();
         if (uploadUrl) {
             xhr.open('POST', uploadUrl, true);
             xhr.responseType = 'json';
@@ -721,8 +704,7 @@ class ServoyUploadAdapter {
         }
     }
 
-    // Initializes XMLHttpRequest listeners.
-    _initListeners(resolve, reject, file, uniekFileId) {
+    _initListeners(resolve: any, reject: any, file: any, _uniekFileId: any) {
         const xhr = this.xhr;
         const loader = this.loader;
         const genericErrorText = `Couldn't upload file: ${file.name}.`;
@@ -730,7 +712,6 @@ class ServoyUploadAdapter {
         xhr.addEventListener('error', () => reject(genericErrorText));
         xhr.addEventListener('abort', () => reject());
         xhr.addEventListener('load', () => {
-            //reject so nothing happens in the editor; the image has to be inserted by the onFileUploadedMethodID
             reject();
         });
 
@@ -744,17 +725,14 @@ class ServoyUploadAdapter {
         }
     }
 
-    // Prepares the data and sends the request.
-    _sendRequest(file, uniqueFileID) {
-        let data = this._createFormDataUpload(file, { 'imageID': uniqueFileID })
-        // Send the request.
+    _sendRequest(file: any, uniqueFileID: any) {
+        const data = this._createFormDataUpload(file, { 'imageID': uniqueFileID })
         this.xhr.send(data);
     }
 
-    //Create formDataUpload
-    _createFormDataUpload(file, metadata) {
-        let formPost = new FormData();
-        let metaFields = Object.keys(metadata);
+    _createFormDataUpload(file: any, metadata: any) {
+        const formPost = new FormData();
+        const metaFields = Object.keys(metadata);
         metaFields.forEach(function(item) {
             formPost.append(item, metadata[item]);
         });
@@ -763,17 +741,14 @@ class ServoyUploadAdapter {
         return formPost;
     }
 
-    //Get servoy fileUpload url
     _getFileUploadURL() {
         if (this.onFileUploadedMethodID)
             return this.uploadURL;
         return null;
     }
 
-    // Starts the upload process.
     upload() {
         if (!this.onFileUploadedMethodID) {
-            //base64 upload
             return new Promise((resolve, reject) => {
                 const reader = this.reader = new window.FileReader();
 
@@ -789,14 +764,13 @@ class ServoyUploadAdapter {
                     reject();
                 });
 
-                this.loader.file.then(file => {
+                this.loader.file.then((file: any) => {
                     reader.readAsDataURL(file);
                 });
             });
         } else {
-            //upload to resources/upload
-            return this.loader.file.then(file => new Promise((resolve, reject) => {
-                let uniqueFileID = this.uuidv4();
+            return this.loader.file.then((file: any) => new Promise((resolve, reject) => {
+                const uniqueFileID = this.uuidv4();
                 this._initRequest();
                 this._initListeners(resolve, reject, file, uniqueFileID);
                 this._sendRequest(file, uniqueFileID);
@@ -804,7 +778,6 @@ class ServoyUploadAdapter {
         }
     }
 
-    // Aborts the upload process.
     abort() {
         if (!this.onFileUploadedMethodID) {
             this.reader.abort();
@@ -815,7 +788,7 @@ class ServoyUploadAdapter {
 
     uuidv4() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
@@ -835,7 +808,7 @@ class SvyMentionConverter {
             },
             model: {
                 key: 'mention',
-                value: viewItem => {
+                value: (viewItem: any) => {
                     return editor.plugins.get('Mention').toMentionAttribute(viewItem, {
                         realValue: viewItem.getAttribute('data-real-value'),
                         format: viewItem.getAttribute('data-format'),
@@ -844,18 +817,17 @@ class SvyMentionConverter {
                 }
             },
             converterPriority: 'high'
-        });
+        } as any);
 
         editor.conversion.for('downcast').attributeToElement({
             model: 'mention',
-            view: (modelAttributeValue, { writer }) => {
-                // Do not convert empty attributes (lack of value means no mention).
+            view: (modelAttributeValue: any, { writer }: any) => {
                 if (!modelAttributeValue) {
                     return null;
                 }
 
-                let elementType = 'span';
-                let attributes = {
+                const elementType = 'span';
+                const attributes = {
                     class: 'mention svy-mention',
                     'data-mention': modelAttributeValue.id,
                     'data-real-value': (modelAttributeValue.realValue == undefined ? '' : modelAttributeValue.realValue),
@@ -864,9 +836,7 @@ class SvyMentionConverter {
                 }
 
                 return writer.createAttributeElement(elementType, attributes, {
-                    // Make mention attribute to be wrapped by other attribute elements.
                     priority: 20,
-                    // Prevent merging mentions together.
                     id: modelAttributeValue.uid
                 });
             },
