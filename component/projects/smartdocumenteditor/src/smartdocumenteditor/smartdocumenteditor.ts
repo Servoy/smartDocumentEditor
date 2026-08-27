@@ -1,4 +1,4 @@
-import { Component, SimpleChanges, input, output, inject, signal, ChangeDetectionStrategy, DOCUMENT } from '@angular/core';
+import { Component, SimpleChanges, input, output, inject, signal, ChangeDetectionStrategy, DOCUMENT, OnDestroy } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
@@ -12,7 +12,7 @@ import DecoupledEditor from '../assets/lib/ckeditor';
     standalone: true,
     imports: [NgStyle, CKEditorModule]
 })
-export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
+export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> implements OnDestroy {
 
     public Editor = DecoupledEditor;
     public shouldshow = signal(0);
@@ -580,7 +580,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
 
     private executePreviewHTML(html: string, readOnly?: boolean) {
         this._prePreviewData = this.getEditorData();
-        if (!!(readOnly != undefined ? readOnly : true)) {
+        if (readOnly != undefined ? readOnly : true) {
             this.editorInstance.enableReadOnlyMode('readonly');
         } else {
             this.editorInstance.disableReadOnlyMode('readonly');
@@ -602,7 +602,7 @@ export class SmartDocumentEditor extends ServoyBaseComponent<HTMLDivElement> {
     public undoPreviewHTML(readOnly?: boolean) {
         this.editorInstance.setData(this._prePreviewData);
         this._prePreviewData = null!;
-        if (!!(readOnly != undefined ? readOnly : false)) {
+        if (readOnly != undefined ? readOnly : false) {
             this.editorInstance.enableReadOnlyMode('readonly');
         } else {
             this.editorInstance.disableReadOnlyMode('readonly');
