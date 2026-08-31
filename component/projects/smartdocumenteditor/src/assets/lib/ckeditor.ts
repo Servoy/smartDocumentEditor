@@ -3,59 +3,64 @@
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
 
-// The editor creator to use.
-import { DecoupledEditor as DecoupledEditorBase } from '@ckeditor/ckeditor5-editor-decoupled';
+// The editor creator and all open-source plugins come from the ckeditor5
+// umbrella package; importing them from individual @ckeditor/* packages
+// risks version skew.
+import {
+    DecoupledEditor as DecoupledEditorBase,
+    Essentials,
+    Alignment,
+    FontSize,
+    FontFamily,
+    FontColor,
+    FontBackgroundColor,
+    CKFinderUploadAdapter,
+    Autoformat,
+    Bold,
+    Italic,
+    Strikethrough,
+    Underline,
+    BlockQuote,
+    Code,
+    CodeBlock,
+    Subscript,
+    Superscript,
+    CKFinder,
+    EasyImage,
+    Heading,
+    HorizontalLine,
+    Image,
+    ImageCaption,
+    ImageStyle,
+    ImageToolbar,
+    ImageUpload,
+    ImageResize,
+    ImageInsert,
+    Indent,
+    IndentBlock,
+    Link,
+    List,
+    MediaEmbed,
+    Paragraph,
+    PasteFromOffice,
+    Table,
+    TableToolbar,
+    TableProperties,
+    TableCellProperties,
+    TextTransformation,
+    Highlight,
+    TodoList,
+    PageBreak,
+    SpecialCharacters,
+    SpecialCharactersEssentials,
+    Autosave,
+    Mention,
+    CloudServices,
+    EditorConfig,
+} from 'ckeditor5';
 
-import { Essentials } from '@ckeditor/ckeditor5-essentials';
-import { Alignment } from '@ckeditor/ckeditor5-alignment';
-import { FontSize } from '@ckeditor/ckeditor5-font';
-import { FontFamily } from '@ckeditor/ckeditor5-font';
-import { FontColor } from '@ckeditor/ckeditor5-font';
-import { FontBackgroundColor } from '@ckeditor/ckeditor5-font';
-import { CKFinderUploadAdapter } from '@ckeditor/ckeditor5-adapter-ckfinder';
-import { Autoformat } from '@ckeditor/ckeditor5-autoformat';
-import { Bold } from '@ckeditor/ckeditor5-basic-styles';
-import { Italic } from '@ckeditor/ckeditor5-basic-styles';
-import { Strikethrough } from '@ckeditor/ckeditor5-basic-styles';
-import { Underline } from '@ckeditor/ckeditor5-basic-styles';
-import { BlockQuote } from '@ckeditor/ckeditor5-block-quote';
-import { Code } from '@ckeditor/ckeditor5-basic-styles';
-import { CodeBlock } from '@ckeditor/ckeditor5-code-block';
-import { Subscript } from '@ckeditor/ckeditor5-basic-styles';
-import { Superscript } from '@ckeditor/ckeditor5-basic-styles';
-import { CKFinder } from '@ckeditor/ckeditor5-ckfinder';
-import { EasyImage } from '@ckeditor/ckeditor5-easy-image';
-import { Heading } from '@ckeditor/ckeditor5-heading';
-import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line';
-import { Image } from '@ckeditor/ckeditor5-image';
-import { ImageCaption } from '@ckeditor/ckeditor5-image';
-import { ImageStyle } from '@ckeditor/ckeditor5-image';
-import { ImageToolbar } from '@ckeditor/ckeditor5-image';
-import { ImageUpload } from '@ckeditor/ckeditor5-image';
-import { ImageResize } from '@ckeditor/ckeditor5-image';
-import { ImageInsert } from '@ckeditor/ckeditor5-image';
-import { Indent } from '@ckeditor/ckeditor5-indent';
-import { IndentBlock } from '@ckeditor/ckeditor5-indent';
-import { Link } from '@ckeditor/ckeditor5-link';
-import { List } from '@ckeditor/ckeditor5-list';
-import { MediaEmbed } from '@ckeditor/ckeditor5-media-embed';
-import { Paragraph } from '@ckeditor/ckeditor5-paragraph';
-import { PasteFromOffice } from '@ckeditor/ckeditor5-paste-from-office';
-import { Table } from '@ckeditor/ckeditor5-table';
-import { TableToolbar } from '@ckeditor/ckeditor5-table';
-import { TableProperties } from '@ckeditor/ckeditor5-table';
-import { TableCellProperties } from '@ckeditor/ckeditor5-table';
-import { TextTransformation } from '@ckeditor/ckeditor5-typing';
-import { Highlight } from '@ckeditor/ckeditor5-highlight';
-import { TodoList } from '@ckeditor/ckeditor5-list';
-import { PageBreak } from '@ckeditor/ckeditor5-page-break';
-import { SpecialCharacters } from '@ckeditor/ckeditor5-special-characters';
-import { SpecialCharactersEssentials } from '@ckeditor/ckeditor5-special-characters';
-import { Autosave } from '@ckeditor/ckeditor5-autosave';
-import { Mention } from '@ckeditor/ckeditor5-mention';
-import { CloudServices } from '@ckeditor/ckeditor5-cloud-services';
+// Pagination is a premium feature and is not re-exported by ckeditor5.
 import { Pagination } from '@ckeditor/ckeditor5-pagination';
-import { EditorConfig } from '@ckeditor/ckeditor5-core';
 
 import { SvyToolbarItem } from '../../plugins/toolbar/svy-toolbar-item';
 

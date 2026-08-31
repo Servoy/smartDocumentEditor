@@ -2,7 +2,7 @@ import { Component, SimpleChanges, input, output, inject, signal, ChangeDetectio
 import { NgStyle } from '@angular/common';
 import { ServoyBaseComponent, BaseCustomObject, IValuelist, JSEvent, ServoyPublicService, EventLike } from '@servoy/public';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import { EditorConfig } from '@ckeditor/ckeditor5-core';
+import { EditorConfig } from 'ckeditor5';
 import DecoupledEditor from '../assets/lib/ckeditor';
 
 @Component({

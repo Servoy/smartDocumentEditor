@@ -2,11 +2,16 @@
  * @module SvyToolbarItem/SvyToolbarItemUi
  */
 
-import { Plugin } from '@ckeditor/ckeditor5-core';
-import { ButtonView, ViewModel } from '@ckeditor/ckeditor5-ui';
-import { View } from '@ckeditor/ckeditor5-ui';
-import { addListToDropdown, createDropdown, ListDropdownItemDefinition } from '@ckeditor/ckeditor5-ui';
-import { Collection } from '@ckeditor/ckeditor5-utils';
+import {
+    addListToDropdown,
+    ButtonView,
+    Collection,
+    createDropdown,
+    ListDropdownItemDefinition,
+    Plugin,
+    View,
+    ViewModel,
+} from 'ckeditor5';
 
 export class SvyToolbarItemUi extends Plugin {
 
