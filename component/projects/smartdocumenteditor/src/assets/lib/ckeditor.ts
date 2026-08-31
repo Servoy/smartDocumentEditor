@@ -51,7 +51,7 @@ import { TodoList } from '@ckeditor/ckeditor5-list';
 import { PageBreak } from '@ckeditor/ckeditor5-page-break';
 import { SpecialCharacters } from '@ckeditor/ckeditor5-special-characters';
 import { SpecialCharactersEssentials } from '@ckeditor/ckeditor5-special-characters';
-import { Autosave } from '@ckeditor/ckeditor5-autosave/';
+import { Autosave } from '@ckeditor/ckeditor5-autosave';
 import { Mention } from '@ckeditor/ckeditor5-mention';
 import { CloudServices } from '@ckeditor/ckeditor5-cloud-services';
 import { Pagination } from '@ckeditor/ckeditor5-pagination';

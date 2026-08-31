@@ -9,7 +9,6 @@
         "entryFile": "src/public-api.ts"
     },
     "allowedNonPeerDependencies": [
-        "@angular/cdk",
         "@ckeditor/ckeditor5-adapter-ckfinder",
         "@ckeditor/ckeditor5-alignment",
         "@ckeditor/ckeditor5-angular",
@@ -42,6 +41,7 @@
         "@ckeditor/ckeditor5-utils",
         "@ckeditor/ckeditor5-watchdog",
         "@ckeditor/ckeditor5-code-block",
+        "ckeditor5",
         "juice"
     ]
 }

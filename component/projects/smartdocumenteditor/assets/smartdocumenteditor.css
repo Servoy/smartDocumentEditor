@@ -109,7 +109,11 @@
 	padding-top: 0;
 }
 
-.ck-content .table table {
+/* CKEditor <= 44 nested the table at ".table table"; 48 moved it to
+   "figure.table:not(.layout-table) > table". Match both so the override
+   survives either version. */
+.ck-content .table table,
+.ck-content figure.table:not(.layout-table) > table {
 	margin: 0;
 	display: table;
 }
