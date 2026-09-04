@@ -6,7 +6,7 @@ NPM-PackageName: @servoy/smartdocumenteditor
 NG2-Components: SmartDocumentEditor
 Entry-Point: dist/servoy/smartdocumenteditor
 Package-Type: Web-Component
-Bundle-Version: 2026.9.0
+Bundle-Version: 2026.9.1
 
 Name: smartdocumenteditor/smartdocumenteditor.spec
 Web-Component: True

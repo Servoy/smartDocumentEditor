@@ -1,6 +1,6 @@
 {
     "name": "@servoy/smartdocumenteditor",
-    "version": "2026.9.0",
+    "version": "2026.9.1",
     "dependencies": {
         "@ckeditor/ckeditor5-angular": "11.2.0",
         "@ckeditor/ckeditor5-pagination": "48.4.0",
