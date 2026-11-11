@@ -30,7 +30,8 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/smartdocumenteditor/tsconfig.spec.json"
+            "tsConfig": "projects/smartdocumenteditor/tsconfig.spec.json",
+            "runnerConfig": "vitest-base.config.ts"
           }
         },
         "lint": {

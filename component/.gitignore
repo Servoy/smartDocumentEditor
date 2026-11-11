@@ -2,3 +2,5 @@
 /dist/
 /smartdocumenteditor.zip
 /.angular/
+/coverage/
+/coverage-report.md

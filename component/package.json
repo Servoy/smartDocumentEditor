@@ -8,6 +8,8 @@
     "build_debug": "ng build --watch",
     "make_release": "ng build --configuration production && node scripts/build.js",
     "test": "ng test --no-watch",
+    "test:coverage": "ng test --no-watch --coverage --coverage-include \"projects/smartdocumenteditor/src/**/*.ts\" --coverage-exclude \"**/*.spec.ts\" --coverage-exclude \"**/*.d.ts\" --coverage-exclude \"**/testingutils.ts\" --coverage-exclude \"**/public-api.ts\"",
+    "coverage:summary": "node scripts/coverage-summary.js",
     "test:watch": "ng test",
     "lint": "ng lint"
   },
@@ -61,6 +63,7 @@
     "@angular/platform-browser": "22.1.4",
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin-ts": "4.4.1",
+    "@vitest/coverage-v8": "4.1.11",
     "adm-zip": "0.6.0",
     "angular-eslint": "^22.1.0",
     "ckeditor5": "^48.4.0",
